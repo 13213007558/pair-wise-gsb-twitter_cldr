@@ -44,7 +44,23 @@ module TwitterCldr
         code_points = get_normalized_code_points(string_or_code_points)
 
         result = []
-        result.concat(code_point_collation_elements(code_points)) until code_points.empty?
+        result.concat(code_point_collation_elements(code_points, nil)) until code_points.empty?
+        result
+      end
+
+      # Returns an array of [collation_element, positions] pairs, where +positions+ is a sorted array of
+      # indices (into the normalized code points sequence) of the code points that produced the collation
+      # element. A single code point can produce several collation elements (expansion) and several code
+      # points can produce a single collation element (contraction). Note that positions of subsequent
+      # collation elements are not necessarily contiguous and can interleave, because a contraction can
+      # combine a prefix with a non-starter that follows it later in the sequence.
+      #
+      def get_collation_elements_with_positions(string_or_code_points)
+        code_points = get_normalized_code_points(string_or_code_points)
+        positions   = (0...code_points.size).to_a
+
+        result = []
+        result.concat(code_point_collation_elements(code_points, positions)) until code_points.empty?
         result
       end
 
@@ -77,12 +93,15 @@ module TwitterCldr
       end
 
       # Returns the first sequence of fractional collation elements for an array of integer code points. Returned value
-      # is an array of well formed (including weights for all significant levels) integer arrays.
+      # is an array of well formed (including weights for all significant levels) integer arrays. When +positions+
+      # (a parallel array of original code point indices) is given, it is modified in sync with +code_points+ and
+      # each collation element in the result is paired with the sorted array of positions of the code points that
+      # produced it.
       #
       # NOTE (side-effect): all used code points are removed from the input array.
       #
-      def code_point_collation_elements(code_points)
-        explicit_collation_elements(code_points) || implicit_collation_elements(code_points)
+      def code_point_collation_elements(code_points, positions)
+        explicit_collation_elements(code_points, positions) || implicit_collation_elements(code_points, positions)
       end
 
       # Tries to build explicit collation elements array for the longest code points prefix in the given sequence. When
@@ -94,7 +113,7 @@ module TwitterCldr
       #
       # For more information see section '4.2 Produce Array' of the main algorithm at http://www.unicode.org/reports/tr10/#Main_Algorithm
       #
-      def explicit_collation_elements(code_points)
+      def explicit_collation_elements(code_points, positions)
         # find the longest prefix in the trie
         collation_elements, prefix_size, suffixes = @trie.find_prefix(code_points)
 
@@ -102,6 +121,7 @@ module TwitterCldr
 
         # remove prefix from the code points sequence
         code_points.shift(prefix_size)
+        used_positions = positions.shift(prefix_size) if positions
 
         non_starter_pos = 0
 
@@ -134,17 +154,20 @@ module TwitterCldr
 
             # Remove non-starter from its position in the sequence. Then we can move further from the same position.
             code_points.delete_at(non_starter_pos)
+            used_positions << positions.delete_at(non_starter_pos) if positions
           else
             # move to the next code point
             non_starter_pos += 1
           end
         end
 
-        collation_elements
+        positions ? collation_elements.map { |collation_element| [collation_element, used_positions.sort] } : collation_elements
       end
 
-      def implicit_collation_elements(code_points)
-        TwitterCldr::Collation::ImplicitCollationElements.for_code_point(code_points.shift)
+      def implicit_collation_elements(code_points, positions)
+        collation_elements = TwitterCldr::Collation::ImplicitCollationElements.for_code_point(code_points.shift)
+
+        positions ? collation_elements.map { |collation_element| [collation_element, [positions.shift]] } : collation_elements
       end
 
       class << self

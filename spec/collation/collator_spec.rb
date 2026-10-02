@@ -115,6 +115,31 @@ describe TwitterCldr::Collation::Collator do
     end
   end
 
+  describe '#get_collation_elements_with_positions' do
+    it 'pairs every collation element with the positions of the normalized code points that produced it' do
+      elements = described_class.new.get_collation_elements_with_positions("a\u0301b")
+
+      expect(elements.map(&:first)).to eq(described_class.new.get_collation_elements("a\u0301b"))
+      expect(elements.map(&:last)).to eq([[0], [1], [2]])
+    end
+
+    it 'reports the same position for every element of an expansion' do
+      # 'æ' produces several collation elements in the root locale
+      elements = described_class.new.get_collation_elements_with_positions('æ')
+
+      expect(elements.size).to be > 1
+      expect(elements.map(&:last)).to all(eq([0]))
+    end
+
+    it 'reports all positions of a contraction on a single element' do
+      # 'ch' is a single collation element in Czech
+      elements = described_class.new(:cs).get_collation_elements_with_positions('ch')
+
+      expect(elements.size).to eq(1)
+      expect(elements.first.last).to eq([0, 1])
+    end
+  end
+
   describe '#get_sort_key' do
     let(:collator)           { described_class.new }
     let(:string)             { 'abc' }

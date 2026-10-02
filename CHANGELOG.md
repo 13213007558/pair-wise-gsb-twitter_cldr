@@ -1,5 +1,8 @@
 # TwitterCldr Changelog
 
+### Unreleased
+* Add locale-aware substring search via `TwitterCldr::Collation::SubstringSearcher`, which finds matches at a given collation strength and reports them as half-open character ranges in the original string.
+
 ### 6.14.0 (Feb 21st, 2025)
 * Allow passing the `dst:` option to `LocalizedDateTime#to_*_s`. (@movermeyer, #280)
 

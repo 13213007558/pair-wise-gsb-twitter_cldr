@@ -941,6 +941,18 @@ collator.get_sort_key("Älg")             # [39, 61, 51, 1, 134, 157, 6, 1, 143,
 
 **Note**: The TwitterCLDR collator does not currently pass all the collation tests provided by Unicode, but for some strange reasons.  See the [summary](https://gist.github.com/f4ee3bd280a2257c5641) of these discrepancies if you're curious.
 
+#### Substring Search
+
+TwitterCLDR can perform locale-aware substring search based on collation elements, which makes it possible to find matches regardless of accents or letter case, and to correctly handle locale-specific contractions (like "ch" in Czech) and expansions (like "æ", which collates like "ae").  Use the `TwitterCldr::Collation::SubstringSearcher` class with a locale and a collation strength (`:primary` ignores accents and case, `:secondary` distinguishes accents but ignores case, `:tertiary` distinguishes both):
+
+```ruby
+searcher = TwitterCldr::Collation::SubstringSearcher.new(locale: :en, strength: :primary)
+searcher.search("résumé", "resume")     # 0...6
+searcher.find_all("æther æon", "ae")    # [0...1, 6...7]
+```
+
+The result is a half-open character range in the original (not normalized) string, so it can be used directly to highlight the match, e.g. `"résumé"[0...6] # => "résumé"`.  Matches are allowed to begin or end inside an expansion; in that case the returned range is expanded to the boundaries of the whole character.  Matches cannot begin or end inside a contraction, and returned ranges never split a combining character sequence.
+
 ### Transliteration
 
 Transliteration is the process of converting the text in one language or script into another with the goal of preserving the source language's pronunciation as much as possible. It can be useful in making text pronounceable in the target language. For example, most native English speakers would not be able to read or pronounce Japanese characters like these: "くろねこさま". Transliterating these characters into Latin script yields "kuronekosama", which should be pronounceable by most English speakers (in fact, probably speakers of many languages that use Latin characters). Remember, transliteration isn't translation; the actual meaning of the words is not taken into consideration, only the sound patterns.
