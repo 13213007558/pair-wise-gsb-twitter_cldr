@@ -941,6 +941,30 @@ collator.get_sort_key("Älg")             # [39, 61, 51, 1, 134, 157, 6, 1, 143,
 
 **Note**: The TwitterCLDR collator does not currently pass all the collation tests provided by Unicode, but for some strange reasons.  See the [summary](https://gist.github.com/f4ee3bd280a2257c5641) of these discrepancies if you're curious.
 
+### Collation-Aware Substring Search
+
+The `TwitterCldr::Collation::StringSearch` class finds substrings using collation elements instead of raw code points, so searches can ignore accents and/or case and respect locale-specific tailoring. It is configured with a locale and a collation strength: `:primary` ignores accents and case, `:secondary` ignores only case, and `:tertiary` (the default) matches exactly.
+
+```ruby
+
+searcher = TwitterCldr::Collation::StringSearch.new(nil, strength: :primary)
+searcher.search("My r\u00e9sum\u00e9", "resume")   # 3...9
+searcher.match?("Hello", "hello")                # true
+```
+
+The result is a half-open range of character offsets into the original (non-normalized) string, suitable for highlighting. Locale-specific contractions are matched atomically, matches never begin or end inside an expansion (a single character that produces several collation elements, like "\u00e6"), and characters that are ignorable at the given strength (like the soft hyphen) never break a match:
+
+```ruby
+
+sk_searcher = TwitterCldr::Collation::StringSearch.new(:sk, strength: :primary)
+sk_searcher.search("chlieb", "ch")   # 0...2  ("ch" is a single letter in Slovak)
+sk_searcher.search("chlieb", "c")    # nil
+
+
+da_searcher = TwitterCldr::Collation::StringSearch.new(:da, strength: :primary)
+da_searcher.search("Aarhus", "\u00e5")   # 0...2  ("aa" is equivalent to "\u00e5" in Danish)
+```
+
 ### Transliteration
 
 Transliteration is the process of converting the text in one language or script into another with the goal of preserving the source language's pronunciation as much as possible. It can be useful in making text pronounceable in the target language. For example, most native English speakers would not be able to read or pronounce Japanese characters like these: "くろねこさま". Transliterating these characters into Latin script yields "kuronekosama", which should be pronounceable by most English speakers (in fact, probably speakers of many languages that use Latin characters). Remember, transliteration isn't translation; the actual meaning of the words is not taken into consideration, only the sound patterns.

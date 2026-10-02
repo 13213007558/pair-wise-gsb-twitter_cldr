@@ -41,10 +41,24 @@ module TwitterCldr
       end
 
       def get_collation_elements(string_or_code_points)
+        collation_elements_with_positions(string_or_code_points).flat_map(&:first)
+      end
+
+      # Returns an array of "collation units" for the given string. Each unit is a pair of:
+      #
+      #   - an array of fractional collation elements that were produced together (for a single code point, a
+      #     contraction of several code points, or a character combined with non-starters that follow it)
+      #   - an array of indices of the code points (in the normalized input) that were used to produce them
+      #
+      # This information makes it possible to map collation elements back to positions in the original string
+      # (e.g. for collation-aware substring search).
+      #
+      def collation_elements_with_positions(string_or_code_points)
         code_points = get_normalized_code_points(string_or_code_points)
+        positions   = (0...code_points.size).to_a
 
         result = []
-        result.concat(code_point_collation_elements(code_points)) until code_points.empty?
+        result << code_point_collation_elements(code_points, positions) until code_points.empty?
         result
       end
 
@@ -81,8 +95,8 @@ module TwitterCldr
       #
       # NOTE (side-effect): all used code points are removed from the input array.
       #
-      def code_point_collation_elements(code_points)
-        explicit_collation_elements(code_points) || implicit_collation_elements(code_points)
+      def code_point_collation_elements(code_points, positions)
+        explicit_collation_elements(code_points, positions) || implicit_collation_elements(code_points, positions)
       end
 
       # Tries to build explicit collation elements array for the longest code points prefix in the given sequence. When
@@ -94,13 +108,14 @@ module TwitterCldr
       #
       # For more information see section '4.2 Produce Array' of the main algorithm at http://www.unicode.org/reports/tr10/#Main_Algorithm
       #
-      def explicit_collation_elements(code_points)
+      def explicit_collation_elements(code_points, positions)
         # find the longest prefix in the trie
         collation_elements, prefix_size, suffixes = @trie.find_prefix(code_points)
 
         return unless collation_elements
 
-        # remove prefix from the code points sequence
+        # remove prefix from the code points sequence, remembering positions of the consumed code points
+        used_positions = positions.shift(prefix_size)
         code_points.shift(prefix_size)
 
         non_starter_pos = 0
@@ -134,17 +149,18 @@ module TwitterCldr
 
             # Remove non-starter from its position in the sequence. Then we can move further from the same position.
             code_points.delete_at(non_starter_pos)
+            used_positions << positions.delete_at(non_starter_pos)
           else
             # move to the next code point
             non_starter_pos += 1
           end
         end
 
-        collation_elements
+        [collation_elements, used_positions]
       end
 
-      def implicit_collation_elements(code_points)
-        TwitterCldr::Collation::ImplicitCollationElements.for_code_point(code_points.shift)
+      def implicit_collation_elements(code_points, positions)
+        [TwitterCldr::Collation::ImplicitCollationElements.for_code_point(code_points.shift), [positions.shift]]
       end
 
       class << self
