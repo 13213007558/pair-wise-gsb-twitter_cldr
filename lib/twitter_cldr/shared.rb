@@ -13,6 +13,7 @@ module TwitterCldr
     autoload :Currencies,             'twitter_cldr/shared/currencies'
     autoload :DayPeriods,             'twitter_cldr/shared/day_periods'
     autoload :Hyphenator,             'twitter_cldr/shared/hyphenator'
+    autoload :IdentifierSecurity,     'twitter_cldr/shared/identifier_security'
     autoload :LanguageCodes,          'twitter_cldr/shared/language_codes'
     autoload :Languages,              'twitter_cldr/shared/languages'
     autoload :LikelySubtags,          'twitter_cldr/shared/likely_subtags'

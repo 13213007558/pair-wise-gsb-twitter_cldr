@@ -1,0 +1,248 @@
+# UTS #39 (Unicode Security Mechanisms) identifier data.
+#
+# Pinned to Unicode 16.0.0, matching TwitterCldr::Versions::UNICODE_VERSION.
+# Do not update this file independently of the Unicode data under
+# resources/unicode_data (Script, Script_Extensions, etc.).
+#
+# :confusables is a curated subset of confusables.txt (Unicode 16.0.0)
+# covering the highest-risk cross-script homoglyphs used in identifier
+# spoofing (Latin <-> Cyrillic, Latin <-> Greek, Latin <-> Armenian,
+# Latin <-> Cherokee), plus fullwidth ASCII forms and a few common
+# punctuation/digit lookalikes. Keys are source code points, values are
+# the code points of the skeleton replacement. Additional entries from
+# confusables.txt 16.0.0 can be appended without code changes.
+#
+# :recommended_scripts / :aspirational_scripts follow UTS #39 Table 5
+# (Recommended and Aspirational scripts, Unicode 16.0.0) and drive
+# restriction-level computation.
+
+:unicode_version: '16.0.0'
+
+:recommended_scripts:
+  - Arabic
+  - Armenian
+  - Bengali
+  - Bopomofo
+  - Cyrillic
+  - Devanagari
+  - Ethiopic
+  - Georgian
+  - Greek
+  - Gujarati
+  - Gurmukhi
+  - Han
+  - Hangul
+  - Hebrew
+  - Hiragana
+  - Kannada
+  - Katakana
+  - Khmer
+  - Lao
+  - Latin
+  - Malayalam
+  - Mongolian
+  - Myanmar
+  - Oriya
+  - Sinhala
+  - Tamil
+  - Telugu
+  - Thai
+  - Tibetan
+
+:aspirational_scripts:
+  - Canadian_Aboriginal
+  - Cherokee
+  - Coptic
+  - Glagolitic
+  - Gothic
+  - Kayah_Li
+  - Lepcha
+  - Limbu
+  - Lisu
+  - Meetei_Mayek
+  - Nko
+  - Ol_Chiki
+  - Osmanya
+  - Saurashtra
+  - Syriac
+  - Tai_Le
+  - Tai_Tham
+  - Tai_Viet
+  - Thaana
+  - Tifinagh
+  - Vai
+  - Yi
+
+:confusables:
+  # digits and punctuation
+  0x0030: [0x004F] # DIGIT ZERO -> LATIN CAPITAL LETTER O
+  0x0031: [0x006C] # DIGIT ONE -> LATIN SMALL LETTER L
+  0x0035: [0x0053] # DIGIT FIVE -> LATIN CAPITAL LETTER S
+  0x0036: [0x0062] # DIGIT SIX -> LATIN SMALL LETTER B
+  0x0038: [0x0042] # DIGIT EIGHT -> LATIN CAPITAL LETTER B
+  0x02BC: [0x0027] # MODIFIER LETTER APOSTROPHE -> APOSTROPHE
+  0x2018: [0x0027] # LEFT SINGLE QUOTATION MARK -> APOSTROPHE
+  0x2019: [0x0027] # RIGHT SINGLE QUOTATION MARK -> APOSTROPHE
+
+  # Cyrillic uppercase -> Latin
+  0x0405: [0x0053] # CYRILLIC CAPITAL LETTER DZE -> S
+  0x0406: [0x0049] # CYRILLIC CAPITAL LETTER BYELORUSSIAN-UKRAINIAN I -> I
+  0x0408: [0x004A] # CYRILLIC CAPITAL LETTER JE -> J
+  0x0410: [0x0041] # CYRILLIC CAPITAL LETTER A -> A
+  0x0412: [0x0042] # CYRILLIC CAPITAL LETTER VE -> B
+  0x0415: [0x0045] # CYRILLIC CAPITAL LETTER IE -> E
+  0x0417: [0x0033] # CYRILLIC CAPITAL LETTER ZE -> 3
+  0x041A: [0x004B] # CYRILLIC CAPITAL LETTER KA -> K
+  0x041C: [0x004D] # CYRILLIC CAPITAL LETTER EM -> M
+  0x041D: [0x0048] # CYRILLIC CAPITAL LETTER EN -> H
+  0x041E: [0x004F] # CYRILLIC CAPITAL LETTER O -> O
+  0x0420: [0x0050] # CYRILLIC CAPITAL LETTER ER -> P
+  0x0421: [0x0043] # CYRILLIC CAPITAL LETTER ES -> C
+  0x0422: [0x0054] # CYRILLIC CAPITAL LETTER TE -> T
+  0x0423: [0x0059] # CYRILLIC CAPITAL LETTER U -> Y
+  0x0425: [0x0058] # CYRILLIC CAPITAL LETTER HA -> X
+  0x0427: [0x0034] # CYRILLIC CAPITAL LETTER CHE -> 4
+
+  # Cyrillic lowercase -> Latin
+  0x0430: [0x0061] # CYRILLIC SMALL LETTER A -> a
+  0x0435: [0x0065] # CYRILLIC SMALL LETTER IE -> e
+  0x0437: [0x0033] # CYRILLIC SMALL LETTER ZE -> 3
+  0x043A: [0x006B] # CYRILLIC SMALL LETTER KA -> k
+  0x043C: [0x006D] # CYRILLIC SMALL LETTER EM -> m
+  0x043D: [0x0068] # CYRILLIC SMALL LETTER EN -> h
+  0x043E: [0x006F] # CYRILLIC SMALL LETTER O -> o
+  0x0440: [0x0070] # CYRILLIC SMALL LETTER ER -> p
+  0x0441: [0x0063] # CYRILLIC SMALL LETTER ES -> c
+  0x0442: [0x0074] # CYRILLIC SMALL LETTER TE -> t
+  0x0443: [0x0079] # CYRILLIC SMALL LETTER U -> y
+  0x0445: [0x0078] # CYRILLIC SMALL LETTER HA -> x
+  0x0447: [0x0034] # CYRILLIC SMALL LETTER CHE -> 4
+  0x0454: [0x0065] # CYRILLIC SMALL LETTER UKRAINIAN IE -> e
+  0x0455: [0x0073] # CYRILLIC SMALL LETTER DZE -> s
+  0x0456: [0x0069] # CYRILLIC SMALL LETTER BYELORUSSIAN-UKRAINIAN I -> i
+  0x0458: [0x006A] # CYRILLIC SMALL LETTER JE -> j
+  0x04BB: [0x0068] # CYRILLIC SMALL LETTER SHHA -> h
+  0x051B: [0x0071] # CYRILLIC SMALL LETTER QA -> q
+  0x051D: [0x0077] # CYRILLIC SMALL LETTER WE -> w
+
+  # Greek uppercase -> Latin
+  0x0391: [0x0041] # GREEK CAPITAL LETTER ALPHA -> A
+  0x0392: [0x0042] # GREEK CAPITAL LETTER BETA -> B
+  0x0395: [0x0045] # GREEK CAPITAL LETTER EPSILON -> E
+  0x0396: [0x005A] # GREEK CAPITAL LETTER ZETA -> Z
+  0x0397: [0x0048] # GREEK CAPITAL LETTER ETA -> H
+  0x0399: [0x0049] # GREEK CAPITAL LETTER IOTA -> I
+  0x039A: [0x004B] # GREEK CAPITAL LETTER KAPPA -> K
+  0x039C: [0x004D] # GREEK CAPITAL LETTER MU -> M
+  0x039D: [0x004E] # GREEK CAPITAL LETTER NU -> N
+  0x039F: [0x004F] # GREEK CAPITAL LETTER OMICRON -> O
+  0x03A1: [0x0050] # GREEK CAPITAL LETTER RHO -> P
+  0x03A4: [0x0054] # GREEK CAPITAL LETTER TAU -> T
+  0x03A5: [0x0059] # GREEK CAPITAL LETTER UPSILON -> Y
+  0x03A7: [0x0058] # GREEK CAPITAL LETTER CHI -> X
+
+  # Greek lowercase -> Latin
+  0x03B1: [0x0061] # GREEK SMALL LETTER ALPHA -> a
+  0x03B2: [0x00DF] # GREEK SMALL LETTER BETA -> LATIN SMALL LETTER SHARP S
+  0x03B3: [0x0079] # GREEK SMALL LETTER GAMMA -> y
+  0x03B5: [0x0065] # GREEK SMALL LETTER EPSILON -> e
+  0x03B7: [0x006E] # GREEK SMALL LETTER ETA -> n
+  0x03B8: [0x0030] # GREEK SMALL LETTER THETA -> 0
+  0x03B9: [0x0069] # GREEK SMALL LETTER IOTA -> i
+  0x03BA: [0x006B] # GREEK SMALL LETTER KAPPA -> k
+  0x03BC: [0x0075] # GREEK SMALL LETTER MU -> u
+  0x03BD: [0x0076] # GREEK SMALL LETTER NU -> v
+  0x03BF: [0x006F] # GREEK SMALL LETTER OMICRON -> o
+  0x03C1: [0x0070] # GREEK SMALL LETTER RHO -> p
+  0x03C3: [0x006F] # GREEK SMALL LETTER SIGMA -> o
+  0x03C4: [0x0074] # GREEK SMALL LETTER TAU -> t
+  0x03C5: [0x0075] # GREEK SMALL LETTER UPSILON -> u
+  0x03C7: [0x0078] # GREEK SMALL LETTER CHI -> x
+  0x03C9: [0x0077] # GREEK SMALL LETTER OMEGA -> w
+
+  # Armenian lowercase -> Latin
+  0x0561: [0x0077] # ARMENIAN SMALL LETTER AYB -> w
+  0x0563: [0x0071] # ARMENIAN SMALL LETTER GIM -> q
+  0x0570: [0x0068] # ARMENIAN SMALL LETTER HO -> h
+  0x0578: [0x006E] # ARMENIAN SMALL LETTER VO -> n
+  0x057D: [0x0075] # ARMENIAN SMALL LETTER SEH -> u
+  0x0584: [0x0070] # ARMENIAN SMALL LETTER KEH -> p
+  0x0585: [0x006F] # ARMENIAN SMALL LETTER OH -> o
+
+  # Cherokee -> Latin
+  0x13A0: [0x0044] # CHEROKEE LETTER A -> D
+  0x13A1: [0x0052] # CHEROKEE LETTER E -> R
+  0x13A2: [0x0054] # CHEROKEE LETTER I -> T
+  0x13A3: [0x004F] # CHEROKEE LETTER O -> O
+  0x13AA: [0x0041] # CHEROKEE LETTER GO -> A
+  0x13B3: [0x004C] # CHEROKEE LETTER TLE -> L
+  0x13C3: [0x0057] # CHEROKEE LETTER TSI -> W
+  0x13F4: [0x0059] # CHEROKEE LETTER YV -> Y
+
+  # fullwidth ASCII digits -> ASCII
+  0xFF10: [0x0030]
+  0xFF11: [0x0031]
+  0xFF12: [0x0032]
+  0xFF13: [0x0033]
+  0xFF14: [0x0034]
+  0xFF15: [0x0035]
+  0xFF16: [0x0036]
+  0xFF17: [0x0037]
+  0xFF18: [0x0038]
+  0xFF19: [0x0039]
+
+  # fullwidth Latin uppercase -> ASCII
+  0xFF21: [0x0041]
+  0xFF22: [0x0042]
+  0xFF23: [0x0043]
+  0xFF24: [0x0044]
+  0xFF25: [0x0045]
+  0xFF26: [0x0046]
+  0xFF27: [0x0047]
+  0xFF28: [0x0048]
+  0xFF29: [0x0049]
+  0xFF2A: [0x004A]
+  0xFF2B: [0x004B]
+  0xFF2C: [0x004C]
+  0xFF2D: [0x004D]
+  0xFF2E: [0x004E]
+  0xFF2F: [0x004F]
+  0xFF30: [0x0050]
+  0xFF31: [0x0051]
+  0xFF32: [0x0052]
+  0xFF33: [0x0053]
+  0xFF34: [0x0054]
+  0xFF35: [0x0055]
+  0xFF36: [0x0056]
+  0xFF37: [0x0057]
+  0xFF38: [0x0058]
+  0xFF39: [0x0059]
+  0xFF3A: [0x005A]
+
+  # fullwidth Latin lowercase -> ASCII
+  0xFF41: [0x0061]
+  0xFF42: [0x0062]
+  0xFF43: [0x0063]
+  0xFF44: [0x0064]
+  0xFF45: [0x0065]
+  0xFF46: [0x0066]
+  0xFF47: [0x0067]
+  0xFF48: [0x0068]
+  0xFF49: [0x0069]
+  0xFF4A: [0x006A]
+  0xFF4B: [0x006B]
+  0xFF4C: [0x006C]
+  0xFF4D: [0x006D]
+  0xFF4E: [0x006E]
+  0xFF4F: [0x006F]
+  0xFF50: [0x0070]
+  0xFF51: [0x0071]
+  0xFF52: [0x0072]
+  0xFF53: [0x0073]
+  0xFF54: [0x0074]
+  0xFF55: [0x0075]
+  0xFF56: [0x0076]
+  0xFF57: [0x0077]
+  0xFF58: [0x0078]
+  0xFF59: [0x0079]
+  0xFF5A: [0x007A]
