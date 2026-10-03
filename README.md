@@ -1008,6 +1008,14 @@ bidi.reorder_visually!
 bidi.to_s
 ```
 
+`display_positions` maps each original code point position to its visible position. `original_positions` is the inverse map. Positions occupied by bidi formatting controls are `nil` because UAX #9 removes them from the visual sequence:
+
+```ruby
+bidi = TwitterCldr::Shared::Bidi.from_string("مرحبا \\u{2068}(@adam)\\u{2069}!")
+bidi.display_positions   # [13, 12, 11, 10, 9, 8, nil, 1, 2, 3, 4, 5, 6, 7, nil, 0]
+bidi.original_positions[0, 14]  # [15, 7, 8, 9, 10, 11, 12, 13, 5, 4, 3, 2, 1, 0]
+```
+
 **Disclaimer**: Google Translate tells me the Arabic in the example above means "fancy", but my confidence is not very high, especially since all the letters are unattached. Apologies to any native speakers :)
 
 ### Unicode YAML Support

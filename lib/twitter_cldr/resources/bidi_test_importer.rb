@@ -12,7 +12,7 @@ module TwitterCldr
       OUT_FILE = 'classpath_bidi_test.txt'
       DIRECTIONS = [nil, :LTR, :RTL]
 
-      requirement :unicode, '6.1.0', ['ucd/BidiTest.txt']
+      requirement :unicode, Versions.unicode_version, ['ucd/BidiTest.txt']
       output_path File.join(TwitterCldr::SPEC_DIR, 'bidi')
       ruby_engine :jruby
 
@@ -102,6 +102,10 @@ module TwitterCldr
           'RLE' => "\u202b",
           'RLO' => "\u202e",
           'PDF' => "\u202c",
+          'LRI' => "\u2066",
+          'RLI' => "\u2067",
+          'FSI' => "\u2068",
+          'PDI' => "\u2069",
           'EN'  => "\u0030",
           'ET'  => "\u0023",
           'AN'  => "\u0667",
