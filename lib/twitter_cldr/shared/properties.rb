@@ -8,6 +8,7 @@ module TwitterCldr
     module Properties
       autoload :ArabicShaping, 'twitter_cldr/shared/properties/arabic_shaping'
       autoload :BidiBrackets,  'twitter_cldr/shared/properties/bidi_brackets'
+      autoload :BidiPairedBrackets, 'twitter_cldr/shared/properties/bidi_paired_brackets'
     end
   end
 end

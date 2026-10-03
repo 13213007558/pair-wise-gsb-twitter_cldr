@@ -3,43 +3,42 @@
 # Copyright 2012 Twitter, Inc
 # http://www.apache.org/licenses/LICENSE-2.0
 
-# This code was adapted from GNU Classpath, but modified significantly.  Ordinarily, derivatives are
-# treated as falling under the same license as the original source, but classpath comes with the
-# following exception:
+# Implementation of the Unicode Bidirectional Algorithm (UAX #9) as specified
+# for Unicode 14.0.0, including:
 #
-# "As a special exception, the copyright holders of this library give you
-# permission to link this library with independent modules to produce an
-# executable, regardless of the license terms of these independent
-# modules, and to copy and distribute the resulting executable under
-# terms of your choice, provided that you also meet, for each linked
-# independent module, the terms and conditions of the license of that
-# module.  An independent module is a module which is not derived from
-# or based on this library.  If you modify this library, you may extend
-# this exception to your version of the library, but you are not
-# obligated to do so.  If you do not wish to do so, delete this
-# exception statement from your version."
+#   * Explicit embeddings and overrides (rules X1-X8, LRE/RLE/LRO/RLO/PDF)
+#   * Explicit directional isolates (rules X5a-X6c, LRI/RLI/FSI/PDI); FSI takes
+#     its direction from its content according to X5c and P2/P3
+#   * Explicit-format removal (rule X9) and level-run boundaries (rule X10)
+#   * Paired bracket handling and the bracket pair type rule N0 (BD16)
+#   * Weak types (W1-W7), neutral types (N1-N2) and implicit levels (I1-I2)
+#   * Paragraph embedding level P2-P3 and the L1/L2 reordering rules
 #
-# We are assuming here that building a gem with the compiled version of bidi.java falls under these terms,
-# specifically that we are "link(ing) this library with independent modules to produce an executable."
-# We are NOT including the original source code to avoid licensing restrictions, but it can be viewed here:
-# http://developer.classpath.org/doc/java/text/Bidi-source.html
-
+# This replaces an earlier port of the GNU Classpath Bidi class, which only
+# supported embeddings and overrides.
 
 module TwitterCldr
   module Shared
     class Bidi
-      attr_reader :types, :levels, :string_arr
+      include TwitterCldr::Shared::Properties
 
-      MAX_DEPTH = 62
+      # Rule BD2.
+      MAX_EXPLICIT_DEPTH = 62
+      # Rule I2.
+      MAX_IMPLICIT_DEPTH = 125
+
+      ISOLATE_INITIATOR_TYPES = [:LRI, :RLI, :FSI].freeze
+
+      attr_reader :types, :levels, :string_arr, :base_level
 
       class << self
         def from_string(str, options = {})
           string_arr = str.unpack("U*")
-          Bidi.new(options.merge(types: compute_types(string_arr), string_arr: string_arr))
+          new(options.merge(types: compute_types(string_arr), string_arr: string_arr))
         end
 
         def from_type_array(types, options = {})
-          Bidi.new(options.merge(types: types))
+          new(options.merge(types: types))
         end
 
         protected
@@ -52,474 +51,599 @@ module TwitterCldr
       end
 
       def initialize(options = {})
-        @string_arr = options[:string_arr] || options[:types]
-        @types = options[:types] || []
-        @levels = []
-        @runs = []
+        @string_arr = options[:string_arr]
+        @types = (options[:types] || []).dup
+        @levels = Array.new(@types.size)
         @direction = options[:direction]
         @default_direction = options[:default_direction] || :LTR
         @length = @types.size
+        @removed = Array.new(@length, false)
+        @visual_order = nil
+        @display_positions = nil
+        @base_level = nil
         run_bidi
       end
 
       def to_s
-        @string_arr.pack("U*")
+        @string_arr.pack("U*") if @string_arr
       end
 
+      # visual_order[display_position] = logical index of the character shown at
+      # that position.  Characters removed by rule X9 are not included.
+      def visual_order
+        compute_visual_order! unless @visual_order
+        @visual_order
+      end
+
+      # display_positions[logical_index] = display position, or nil when the
+      # character was removed by rule X9.
+      def display_positions
+        compute_visual_order! unless @display_positions
+        @display_positions
+      end
+
+      def reordered_string
+        raise "No string given!" unless @string_arr
+        visual_order.map { |idx| @string_arr[idx] }.pack("U*")
+      end
+
+      # Backwards-compatible in-place reordering.  Formatting characters and BN
+      # characters (rule X9) are dropped from the string.
       def reorder_visually!
         raise "No string given!" unless @string_arr
-
-        # Do this explicitly so we can also find the maximum depth at the
-        # same time.
-        max = 0
-        lowest_odd = MAX_DEPTH + 1
-
-        @levels.each do |level|
-          max = [level, max].max
-          lowest_odd = [lowest_odd, level].min unless level.even?
-        end
-
-        # Reverse the runs starting with the deepest.
-        max.downto(lowest_odd) do |depth|
-          start = 0
-
-          while start < @levels.size
-            # Find the start of a run >= DEPTH.
-            start += 1 while start < @levels.size && @levels[start] < depth
-
-            break if start == @levels.size
-
-            # Find the end of the run.
-            finish = start + 1
-            finish += 1 while finish < @levels.size && @levels[finish] >= depth
-
-            # Reverse this run.
-            ((finish - start) / 2).times do |i|
-              tmpb = @levels[finish - i - 1]
-              @levels[finish - i - 1] = @levels[start + i]
-              @levels[start + i] = tmpb
-
-              tmpo = @string_arr[finish - i - 1]
-              @string_arr[finish - i - 1] = @string_arr[start + i]
-              @string_arr[start + i] = tmpo
-            end
-
-            # Handle the next run.
-            start = finish + 1
-          end
-        end
-
+        order = visual_order
+        reordered = order.map { |idx| @string_arr[idx] }
+        reordered_levels = order.map { |idx| @levels[idx] }
+        reordered_types = order.map { |idx| @types[idx] }
+        @string_arr.replace(reordered)
+        @levels.replace(reordered_levels)
+        @types.replace(reordered_types)
+        @removed = Array.new(@string_arr.size, false)
+        @length = @string_arr.size
+        @display_positions = (0...@length).to_a
+        @visual_order = (0...@length).to_a
         self
       end
 
       protected
 
-      def compute_paragraph_embedding_level
-        # First check to see if the user supplied a directionality override.
-        if [:LTR, :RTL].include?(@direction)
-          @direction == :LTR ? 0 : 1
+      # Rules P2 and P3.  Isolate controls are skipped as required by P2, and
+      # FSI is treated as RLI for the paragraph-level scan.
+      def paragraph_embedding_level(start, limit)
+        if @direction == :LTR
+          0
+        elsif @direction == :RTL
+          1
         else
-          # This implements rules P2 and P3.
-          # (Note that we don't need P1, as the user supplies
-          # a paragraph.)
-          @types.each do |type|
-            return 0 if type == :L
-            return 1 if type == :R
+          start.upto(limit - 1) do |i|
+            case @types[i]
+            when :AL, :R then return 1
+            when :L then return 0
+            end
           end
-
           @default_direction == :LTR ? 0 : 1
         end
       end
 
-      def compute_explicit_levels
-        current_embedding = @base_embedding
+      def run_bidi
+        # Rule BD13: each paragraph (delimited by B) is independent.  Levels
+        # assigned across the paragraph boundary are reset below.
+        start = 0
+        index = 0
 
-        # The directional override is a Character directionality
-        # constant.  -1 means there is no override.
-        directional_override = -1
+        while index < @length
+          limit = index
+          limit += 1 while limit < @length && @types[limit] != :B
 
-        # The stack of pushed embeddings, and the stack pointer.
-        # Note that because the direction is inherent in the depth,
-        # and because we have a bit left over in a byte, we can encode
-        # the override, if any, directly in this value on the stack.
+          base = paragraph_embedding_level(index, limit)
+          @base_level ||= base
 
-        embedding_stack = []
-        @formatter_indices ||= []
-        sp = 0
+          compute_explicit_levels(index, limit, base)
+          runs = compute_level_runs(index, limit)
+          resolve_bracket_pairs(runs)
+          resolve_weak_types(runs, base, index, limit)
+          resolve_neutral_types(runs, base, index, limit)
+          resolve_implicit_levels(runs)
+          reset_paragraph_levels(index, limit, base)
 
-        @length.times do |i|
-          is_ltr = false
-          is_special = true
-          is_ltr = @types[i] == :LRE || @types[i] == :LRO
-
-          case @types[i]
-            when :RLE, :RLO, :LRE, :LRO
-              new_embedding = if is_ltr
-                # Least greater even.
-                ((current_embedding & ~1) + 2)
-              else
-                # Least greater odd.
-                ((current_embedding + 1) | 1)
-              end
-
-              # FIXME: we don't properly handle invalid pushes.
-              if new_embedding < MAX_DEPTH
-                # The new level is valid.  Push the old value.
-                # See above for a comment on the encoding here.
-
-                current_embedding |= -0x80 if (directional_override != -1)
-                embedding_stack[sp] = current_embedding
-                current_embedding = new_embedding
-                sp += 1
-
-                directional_override = if @types[i] == :LRO
-                  :L
-                elsif @types[i] == :RLO
-                  :R
-                else
-                  -1
-                end
-              end
-
-            when :PDF
-              # FIXME: we don't properly handle a pop with a corresponding
-              # invalid push.
-              # If sp === 0, we saw a pop without a push.  Just ignore it.
-              if sp > 0
-                sp -= 1
-                new_embedding = embedding_stack[sp]
-                current_embedding = new_embedding & 0x7f
-
-                directional_override = if new_embedding < 0
-                  (new_embedding & 1) == 0 ? :L : :R
-                else
-                  -1
-                end
-              end
-
-            else
-              is_special = false
-          end
-
-          @levels[i] = current_embedding
-
-          if is_special
-            # Mark this character for removal.
-            @formatter_indices << i
-          elsif directional_override != -1
-            @types[i] = directional_override
-          end
-        end
-
-        # Remove the formatting codes and update both the arrays
-        # and 'length'.  It would be more efficient not to remove
-        # these codes, but it is also more complicated.  Also, the
-        # Unicode algorithm reference does not properly describe
-        # how this is to be done -- from what I can tell, their suggestions
-        # in this area will not yield the correct results.
-
-        output = 0
-        input = 0
-        size = @formatter_indices.size
-
-        0.upto(size).each do |i|
-          if i == size
-            next_fmt = @length
+          if limit < @length
+            # The B separator itself gets the paragraph embedding level.
+            @levels[limit] = base
+            index = limit + 1
           else
-            next_fmt = @formatter_indices[i]
+            index = @length
           end
-
-          len = next_fmt - input
-
-          # Non-formatter codes are from 'input' to 'next_fmt'.
-          arraycopy(@levels, input, @levels, output, len)
-          arraycopy(@types, input, @types, output, len)
-
-          output += len
-          input = next_fmt + 1
         end
-
-        @length -= @formatter_indices.size
       end
 
-      def compute_runs
-        run_count = 0
-        current_embedding = @base_embedding
+      # Rules X1-X9.  Computes the embedding level of every character and marks
+      # formatting characters for removal by X9.
+      #
+      # Each stack entry records [level, override] where override is :L, :R or
+      # nil.  Isolate status is tracked separately so that valid PDF pops are
+      # blocked above an isolate while PDI pops past everything.
+      def compute_explicit_levels(start, limit, base)
+        # Each stack entry is {level:, override:, isolate:}.  Only the last
+        # entry ever carries an active override, but keeping it on the entry
+        # makes PDF/PDI pops straightforward.
+        stack = [{level: base, override: nil, isolate: false}]
+        overflow_isolate_count = 0
+        overflow_embedding_count = 0
+        valid_isolate_count = 0
 
-        @length.times do |i|
-          if @levels[i] != current_embedding
-            current_embedding = @levels[i]
-            run_count += 1
+        start.upto(limit - 1) do |i|
+          type = @types[i]
+          level = stack.last[:level]
+
+          case type
+          when :LRI, :RLI, :FSI
+            if type == :FSI
+              resolved = fsi_direction(i, limit)
+              type = resolved == 1 ? :RLI : :LRI
+            end
+
+            @levels[i] = level
+            @removed[i] = true
+
+            new_level = least_greater(level, type == :LRI ? 0 : 1)
+            if new_level <= MAX_EXPLICIT_DEPTH && overflow_isolate_count == 0 &&
+               overflow_embedding_count == 0
+              valid_isolate_count += 1
+              stack.push(level: new_level, override: nil, isolate: true)
+            else
+              overflow_isolate_count += 1
+            end
+
+          when :PDI
+            if overflow_isolate_count > 0
+              overflow_isolate_count -= 1
+            elsif valid_isolate_count > 0
+              until stack.last[:isolate]
+                stack.pop
+              end
+              if stack.last[:isolate]
+                stack.pop
+                valid_isolate_count -= 1
+              end
+            end
+            # Rule X6c: a PDI matching an invalid isolate, or without a matching
+            # initiator, takes the current embedding level.
+            @levels[i] = stack.last[:level]
+            @removed[i] = true
+
+          when :LRE, :RLE, :LRO, :RLO
+            new_level = least_greater(level, type == :RLE || type == :RLO ? 1 : 0)
+            override = (type == :LRO ? :L : type == :RLO ? :R : nil)
+
+            if new_level <= MAX_EXPLICIT_DEPTH && overflow_isolate_count == 0 &&
+               overflow_embedding_count == 0
+              stack.push(level: new_level, override: override, isolate: false)
+            elsif overflow_isolate_count == 0
+              overflow_embedding_count += 1
+            end
+            @levels[i] = level
+            @removed[i] = true
+
+          when :PDF
+            if overflow_isolate_count == 0 && overflow_embedding_count > 0
+              overflow_embedding_count -= 1
+            elsif overflow_isolate_count == 0 && valid_isolate_count == 0
+              # Rule X7: terminate the last embedding/override on the stack.
+              stack.pop unless stack.size == 1
+            end
+            @levels[i] = level
+            @removed[i] = true
+
+          when :BN
+            @levels[i] = level
+            @removed[i] = true
+
+          else
+            @levels[i] = level
+            override = stack.last[:override]
+            @types[i] = override if override
           end
         end
-
-        # This may be called multiple times.  If so, and if
-        # the number of runs has not changed, then don't bother
-        # allocating a new array.
-        where = 0
-        last_run_start = 0
-        current_embedding = @base_embedding
-
-        @length.times do |i|
-          if @levels[i] != current_embedding
-            @runs[where] = last_run_start
-            where += 1
-            last_run_start = i
-            current_embedding = @levels[i]
-          end
-        end
-
-        @runs[where] = last_run_start
       end
 
-      def resolve_weak_types
-        run_count = @runs.size
-        previous_level = @base_embedding
+      # Rule X5c: FSI acts like LRI unless its content (up to the matching PDI)
+      # would have paragraph embedding level 1 under P2/P3.
+      def fsi_direction(index, limit)
+        depth = 1
+        i = index + 1
+        while i < limit
+          type = @types[i]
+          if ISOLATE_INITIATOR_TYPES.include?(type)
+            depth += 1
+          elsif type == :PDI
+            depth -= 1
+            break if depth == 0
+          elsif depth == 1
+            return 1 if type == :R || type == :AL
+            return 0 if type == :L
+          end
+          i += 1
+        end
+        @default_direction == :LTR ? 0 : 1
+      end
 
-        run_count.times do |run_idx|
-          start = get_run_start(run_idx)
-          finish = get_run_limit(run_idx)
-          level = get_run_level(run_idx) || 0
+      def least_greater(level, parity)
+        if parity == 1
+          level.odd? ? level + 2 : level + 1
+        else
+          level.even? ? level + 2 : level + 1
+        end
+      end
 
-          # These are the names used in the Bidi algorithm.
-          sor = [previous_level, level].max.even? ? :L : :R
+      # Rule X10: maximal sequences of non-removed characters at the same level
+      # are processed independently.  Isolate initiators get the level of the
+      # run that contains them (the outer run), while the PDI gets the level of
+      # the run that contains its matching initiator.
+      def compute_level_runs(start, limit)
+        runs = []
+        i = start
+        while i < limit
+          next(i += 1) if @removed[i]
 
-          next_level = if run_idx == (run_count - 1)
-            @base_embedding
-          else
-            get_run_level(run_idx + 1) || 0
+          run_level = @levels[i]
+          run_start = i
+          i += 1
+
+          while i < limit
+            if @removed[i]
+              # X10: only the isolate initiator belongs to the outer run.
+              break unless ISOLATE_INITIATOR_TYPES.include?(@types[i])
+            elsif @levels[i] != run_level
+              break
+            end
+            i += 1
           end
 
-          eor = [level, next_level].max.even? ? :L : :R
-          prev_type = sor
-          prev_strong_type = sor
+          runs << [run_start, i]
+        end
+        runs
+      end
 
-          start.upto(finish - 1) do |i|
-            next_type = (i == finish - 1) ? eor : @types[i + 1]
+      # Rules BD16 and N0.
+      def resolve_bracket_pairs(runs)
+        runs.each do |run_start, run_limit|
+          open_stack = []
 
-            # Rule W1: change NSM to the prevailing direction.
-            if @types[i] == :NSM
-              @types[i] = prev_type
+          run_start.upto(run_limit - 1) do |i|
+            next if @removed[i]
+            type = bracket_kind_at(i)
+
+            if type == :open
+              if open_stack.size == 63
+                open_stack.shift
+              end
+              open_stack.push(i)
+            elsif type == :close
+              opener = find_matching_opener(open_stack, i)
+              if opener
+                pair_type = bracket_pair_type(opener, i)
+                if pair_type
+                  @types[opener] = pair_type
+                  @types[i] = pair_type
+                end
+              end
+            end
+          end
+        end
+      end
+
+      # Real strings use the Unicode 14.0.0 bracket data; type-array inputs
+      # (BidiTest) tag bracket ON characters as :Bidi_Open/:Bidi_Close with
+      # matching by nesting position.
+      def bracket_kind_at(index)
+        code = @string_arr && @string_arr[index]
+        if code
+          if BidiPairedBrackets.opening?(code)
+            :open
+          elsif BidiPairedBrackets.closing?(code)
+            :close
+          end
+        elsif @types[index] == :Bidi_Open
+          :open
+        elsif @types[index] == :Bidi_Close
+          :close
+        end
+      end
+
+      def find_matching_opener(open_stack, closer_index)
+        code = @string_arr && @string_arr[closer_index]
+        open_stack.reverse_each do |opener_index|
+          if code.nil?
+            # Type-array vectors pair brackets positionally.
+            open_stack.delete(opener_index)
+            return opener_index
+          end
+
+          opener_code = @string_arr[opener_index]
+          if BidiPairedBrackets.close_for_open(opener_code) == code
+            open_stack.delete(opener_index)
+            return opener_index
+          end
+        end
+        nil
+      end
+
+      # Rules W1-W7, applied independently to each level run.
+      def resolve_weak_types(runs, base, paragraph_start, paragraph_limit)
+        runs.each do |run_start, run_limit|
+          level = @levels[run_start]
+          sor = boundary_type(run_start, true, base, paragraph_start, paragraph_limit)
+          eor = boundary_type(run_limit - 1, false, base, paragraph_start, paragraph_limit)
+
+          # Rules W1-W3, W7 in a single forward pass.
+          preceding = sor
+          preceding_strong = sor
+
+          run_start.upto(run_limit - 1) do |i|
+            next if @removed[i]
+
+            # W1.
+            @types[i] = preceding if @types[i] == :NSM
+
+            # W2 (uses the original AL strong type, so precedes W3).
+            @types[i] = :AN if @types[i] == :EN && preceding_strong == :AL
+
+            # Track the last strong type for W2/W7.
+            case @types[i]
+            when :L then preceding_strong = :L
+            when :R then preceding_strong = :R
+            when :AL then preceding_strong = :AL
+            end
+
+            # W3.
+            @types[i] = :R if @types[i] == :AL
+
+            # W7.
+            @types[i] = :L if @types[i] == :EN && preceding_strong == :L
+
+            preceding = @types[i]
+          end
+
+          # W4.
+          run_start.upto(run_limit - 1) do |i|
+            next if @removed[i]
+            prev = previous_type(i, run_start, sor)
+            nxt = next_type(i, run_limit, eor)
+            if @types[i] == :ES && prev == :EN && nxt == :EN
+              @types[i] = :EN
+            elsif @types[i] == :CS && prev == :EN && nxt == :EN
+              @types[i] = :EN
+            elsif @types[i] == :CS && prev == :AN && nxt == :AN
+              @types[i] = :AN
+            end
+          end
+
+          # W5.
+          i = run_start
+          while i < run_limit
+            if !@removed[i] && @types[i] == :ET
+              j = i
+              j += 1 while j < run_limit && !@removed[j] && @types[j] == :ET
+              prev = previous_type(i, run_start, sor)
+              nxt = next_type(j - 1, run_limit, eor)
+              if prev == :EN || nxt == :EN
+                i.upto(j - 1) { |k| @types[k] = :EN unless @removed[k] }
+              end
+              i = j
             else
-              prev_type = @types[i]
+              i += 1
             end
+          end
 
-            # Rule W2: change EN to AN in some cases.
-            if @types[i] == :EN
-              if prev_strong_type == :AL
-                @types[i] = :AN
-              end
-            elsif @types[i] == :L || @types[i] == :R || @types[i] == :AL
-              prev_strong_type = @types[i]
-            end
-
-            # Rule W3: change AL to R.
-            if @types[i] == :AL
-              @types[i] = :R
-            end
-
-            # Rule W4: handle separators between two numbers.
-            if prev_type == :EN && next_type == :EN
-              if @types[i] == :ES || @types[i] == :CS
-                @types[i] = nextType
-              end
-            elsif prev_type == :AN && next_type == :AN && @types[i] == :CS
-              @types[i] = next_type
-            end
-
-            # Rule W5: change a sequence of european terminators to
-            # european numbers, if they are adjacent to european numbers.
-            # We also include BN characters in this.
-            if @types[i] == :ET || @types[i] == :BN
-              if prev_type == :EN
-                @types[i] = prev_type
-              else
-                # Look ahead to see if there is an EN terminating this
-                # sequence of ETs.
-                j = i + 1
-
-                while j < finish && @types[j] == :ET || @types[j] == :BN
-                  j += 1
-                end
-
-                if j < finish && @types[j] == :EN
-                  # Change them all to EN now.
-                  i.upto(j - 1) do |k|
-                    @types[k] = :EN
-                  end
-                end
-              end
-            end
-
-            # Rule W6: separators and terminators change to ON.
-            # Again we include BN.
-            if @types[i] == :ET || @types[i] == :CS || @types[i] == :BN
+          # W6.
+          run_start.upto(run_limit - 1) do |i|
+            next if @removed[i]
+            if [:ES, :ET, :CS].include?(@types[i])
               @types[i] = :ON
             end
-
-            # Rule W7: change european number types.
-            if prev_strong_type == :L && @types[i] == :EN
-              @types[i] = prev_strong_type
-            end
-          end
-
-          previous_level = level
-        end
-      end
-
-      def get_run_count
-        @runs.size
-      end
-
-      def get_run_level(which)
-        @levels[@runs[which]]
-      end
-
-      def get_run_limit(which)
-        if which == (@runs.length - 1)
-          @length
-        else
-          @runs[which + 1]
-        end
-      end
-
-      def get_run_start(which)
-        @runs[which]
-      end
-
-      def resolve_implicit_levels
-        # This implements rules I1 and I2.
-        @length.times do |i|
-          if (@levels[i] & 1) == 0
-            if @types[i] == :R
-              @levels[i] += 1
-            elsif @types[i] == :AN || @types[i] == :EN
-              @levels[i] += 2
-            end
-          else
-            if @types[i] == :L || @types[i] == :AN || @types[i] == :EN
-              @levels[i] += 1
-            end
           end
         end
       end
 
-      def resolve_neutral_types
-        # This implements rules N1 and N2.
-        run_count = get_run_count
-        previous_level = @base_embedding
+      def previous_type(index, run_start, sor)
+        i = index - 1
+        i -= 1 while i >= run_start && @removed[i]
+        i < run_start ? sor : @types[i]
+      end
 
-        run_count.times do |run|
-          start = get_run_start(run)
-          finish = get_run_limit(run)
-          level = get_run_level(run)
-          next unless level
+      def next_type(index, run_limit, eor)
+        i = index + 1
+        i += 1 while i < run_limit && @removed[i]
+        i >= run_limit ? eor : @types[i]
+      end
 
-          embedding_direction = level.even? ? :L : :R
-          # These are the names used in the Bidi algorithm.
-          sor = [previous_level, level].max.even? ? :L : :R
+      # SOR/EOR strong type for a run (rules HL2/HL3).
+      def boundary_type(index, before, base, paragraph_start = 0, paragraph_limit = @length)
+        boundary_level = if before
+                           scan = index - 1
+                           scan -= 1 while scan >= paragraph_start && @removed[scan]
+                           [@levels[index], scan >= paragraph_start ? @levels[scan] : base].max
+                         else
+                           scan = index + 1
+                           scan += 1 while scan < paragraph_limit && @removed[scan]
+                           [@levels[index], scan < paragraph_limit ? @levels[scan] : base].max
+                         end
+        (boundary_level & 1) == 1 ? :R : :L
+      end
 
-          next_level = if run == (run_count - 1)
-            @base_embedding
-          else
-            get_run_level(run + 1)
-          end
+      # Rules N1 and N2, applied per level run.  BN characters are ignored.
+      def resolve_neutral_types(runs, base, paragraph_start, paragraph_limit)
+        runs.each do |run_start, run_limit|
+          sor = boundary_type(run_start, true, base, paragraph_start, paragraph_limit)
+          eor = boundary_type(run_limit - 1, false, base, paragraph_start, paragraph_limit)
+          embedding_direction = (@levels[run_start] & 1) == 1 ? :R : :L
 
-          eor = [level, next_level].max.even? ? :L : :R
-          prev_strong = sor
-          neutral_start = -1
+          preceding_strong = sor
+          neutral_start = nil
 
-          start.upto(finish) do |i|
-            new_strong = -1
-            this_type = i == finish ? eor : @types[i]
+          run_start.upto(run_limit) do |i|
+            strong = i == run_limit ? eor : strong_for_neutral(i)
 
-            case this_type
-              when :L
-                new_strong = :L
-              when :R, :AN, :EN
-                new_strong = :R
-              when :BN, :ON, :S, :B, :WS
-                neutral_start = i if neutral_start == -1
-            end
-
-            # If we see a strong character, update all the neutrals.
-            if new_strong != -1
-              if neutral_start != -1
-                override = prev_strong == new_strong ? prev_strong : embedding_direction
-                neutral_start.upto(i - 1) { |j| @types[j] = override }
+            if strong
+              if neutral_start
+                resolved = preceding_strong == strong ? strong : embedding_direction
+                neutral_start.upto(i - 1) do |j|
+                  @types[j] = resolved if !@removed[j] && neutral_type?(@types[j])
+                end
               end
-
-              prev_strong = new_strong
-              neutral_start = -1
+              preceding_strong = strong
+              neutral_start = nil
+            elsif i < run_limit && !@removed[i] && neutral_type?(@types[i])
+              neutral_start ||= i
             end
           end
-
-          previous_level = level
         end
       end
 
-      def reinsert_formatting_codes
-        if @formatter_indices
-          input = @length
-          output = @levels.size
+      def strong_for_neutral(index)
+        case @types[index]
+        when :L then :L
+        when :R, :AN, :EN then :R
+        end
+      end
 
-          # Process from the end as we are copying the array over itself here.
-          (@formatter_indices.size - 1).downto(0) do |index|
-            next_fmt = @formatter_indices[index]
+      def neutral_type?(type)
+        [:B, :S, :WS, :ON, :FSI, :LRI, :RLI, :PDI].include?(type)
+      end
 
-            # nextFmt points to a location in the original array.  So,
-            # nextFmt+1 is the target of our copying.  output is the location
-            # to which we last copied, thus we can derive the length of the
-            # copy from it.
-            len = output - next_fmt - 1
-            output = next_fmt
-            input -= len
+      # Rules I1 and I2.
+      def resolve_implicit_levels(runs)
+        runs.each do |run_start, run_limit|
+          even_level = (@levels[run_start] & 1) == 0
 
-            # Note that we no longer need 'types' at this point, so we
-            # only edit 'levels'.
-            if next_fmt + 1 < @levels.size
-              arraycopy(@levels, input, @levels, next_fmt + 1, len)
-            end
-
-            # Now set the level at the reinsertion point.
-            right_level = if output == @levels.length - 1
-              @base_embedding
+          run_start.upto(run_limit - 1) do |i|
+            next if @removed[i]
+            if even_level
+              if @types[i] == :R
+                @levels[i] += 1
+              elsif [:AN, :EN].include?(@types[i])
+                @levels[i] += 2
+              end
             else
-              @levels[output + 1] || 0
+              if [:L, :AN, :EN].include?(@types[i])
+                @levels[i] += 1
+              end
             end
+            @levels[i] = MAX_IMPLICIT_DEPTH if @levels[i] > MAX_IMPLICIT_DEPTH
+          end
+        end
+      end
 
-            left_level = if input == 0
-              @base_embedding
-            else
-              @levels[input] || 0;
-            end
+      # Rule L1.
+      def reset_paragraph_levels(start, limit, base)
+        # 1. Any sequence of whitespace characters and/or B/S at the end of a
+        # line up to and including the first strong character.
+        start.upto(limit - 1) do |i|
+          next if @removed[i]
+          @levels[i] = base if @types[i] == :S || @types[i] == :B
+        end
 
-            @levels[output] = [left_level, right_level].max
+        # 2. Reset the trailing whitespace sequence; a run of PDIs (optionally
+        # preceded by a matching isolate initiator) is part of that sequence.
+        i = limit - 1
+        i -= 1 while i >= start && @removed[i]
+
+        while i >= start && !@removed[i] && whitespace_for_l1?(@types[i])
+          @levels[i] = base
+          i -= 1
+        end
+
+        if i >= start && !@removed[i] && @types[i] == :PDI
+          while i >= start && !@removed[i] && @types[i] == :PDI
+            @levels[i] = base
+            i -= 1
+          end
+          if i >= start && !@removed[i] && ISOLATE_INITIATOR_TYPES.include?(@types[i])
+            @levels[i] = base
+            i -= 1
           end
         end
 
-        @length = @levels.size
-      end
+        while i >= start && !@removed[i] && whitespace_for_l1?(@types[i])
+          @levels[i] = base
+          i -= 1
+        end
 
-      def arraycopy(orig, orig_index, dest, dest_index, length)
-        orig[orig_index...(orig_index + length)].each_with_index do |elem, count|
-          dest[dest_index + count] = elem
+        # 3. Leading whitespace.
+        start.upto(limit - 1) do |j|
+          if !@removed[j] && (@types[j] == :WS || @types[j] == :B || @types[j] == :S)
+            @levels[j] = base
+          else
+            break
+          end
+        end
+
+        # 4. Whitespace adjacent to an isolate initiator/PDI that was reset.
+        start.upto(limit - 1) do |j|
+          next unless ISOLATE_INITIATOR_TYPES.include?(@types[j]) || @types[j] == :PDI
+          next unless @levels[j] == base
+          k = j - 1
+          while k >= start && !@removed[k] && @types[k] == :WS
+            @levels[k] = base
+            k -= 1
+          end
+          k = j + 1
+          while k < limit && !@removed[k] && @types[k] == :WS
+            @levels[k] = base
+            k += 1
+          end
         end
       end
 
-      def run_bidi
-        @base_embedding = compute_paragraph_embedding_level
+      def whitespace_for_l1?(type)
+        type == :WS || type == :B || type == :S
+      end
 
-        compute_explicit_levels
-        compute_runs
-        resolve_weak_types
-        resolve_neutral_types
-        resolve_implicit_levels
-        reinsert_formatting_codes
+      # Rule L2: reverse from the highest level down to the lowest odd level.
+      def compute_visual_order!
+        surviving = (0...@length).select { |i| !@removed[i] }
+        order = surviving.dup
 
-        # After resolving the implicit levels, the number
-        # of runs may have changed.
-        compute_runs
+        highest = surviving.map { |i| @levels[i] }.max || 0
+
+        highest.downto(1) do |level|
+          next if level.even?
+
+          start = 0
+          while start < order.size
+            start += 1 while start < order.size && @levels[order[start]] < level
+            break if start == order.size
+            finish = start + 1
+            finish += 1 while finish < order.size && @levels[order[finish]] >= level
+            order[start...finish] = order[start...finish].reverse
+            start = finish
+          end
+        end
+
+        @visual_order = order
+        @display_positions = Array.new(@length)
+        order.each_with_index { |logical, visual| @display_positions[logical] = visual }
+      end
+
+      # Rule N0: within a bracket pair, R/AL wins over AN, EN and L; AN wins
+      # over EN and L; EN wins over L.  The bracket characters themselves are
+      # assigned the chosen strong type.
+      def bracket_pair_type(opener, closer)
+        # Strong-type precedence: R > AN > EN > L.  R is checked first by a
+        # whole-pair scan so that, e.g., an earlier L cannot mask a later R.
+        (opener + 1).upto(closer - 1) do |i|
+          next if @removed[i]
+          return :R if @types[i] == :R || @types[i] == :AL
+        end
+        (opener + 1).upto(closer - 1) do |i|
+          next if @removed[i]
+          case @types[i]
+          when :AN then return :AN
+          when :EN then return :EN
+          when :L then return :L
+          end
+        end
+        nil
       end
     end
   end

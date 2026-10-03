@@ -194,7 +194,7 @@ namespace :update do
     TwitterCldr::Resources::SegmentTestsImporter.new.import
   end
 
-  desc 'Import (generate) bidi tests (should be executed using JRuby 1.7 in 1.9 mode)'
+  desc 'Fetch the official UAX #9 BidiTest.txt conformance vectors'
   task :bidi_tests do
     TwitterCldr::Resources::BidiTestImporter.new.import
   end

@@ -967,6 +967,19 @@ bidi.reorder_visually!
 bidi.to_s
 ```
 
+The implementation follows UAX #9 (the Unicode Bidirectional Algorithm) for the Unicode version bundled with this gem, including embeddings and overrides (LRE/RLE/LRO/RLO/PDF), directional isolates (LRI/RLI/FSI/PDI), and paired bracket handling (rule N0).  An FSI takes its direction from its content, and a missing PDI runs to the end of the paragraph.
+
+To embed an English username (or any LTR run) inside Arabic text, wrap it in an FSI/PDI pair so that punctuation outside the isolate is not pulled into the LTR run.  `display_positions` maps each logical character index to its visual position (nil for control characters removed by rule X9), while `visual_order` is the inverse mapping:
+
+```ruby
+fsi = "\u2068"
+pdi = "\u2069"
+bidi = TwitterCldr::Shared::Bidi.from_string("arabic " + fsi + "(john_123)" + pdi + ": arabic")
+bidi.reordered_string
+bidi.display_positions
+bidi.visual_order
+```
+
 **Disclaimer**: Google Translate tells me the Arabic in the example above means "fancy", but my confidence is not very high, especially since all the letters are unattached. Apologies to any native speakers :)
 
 ### Unicode YAML Support
