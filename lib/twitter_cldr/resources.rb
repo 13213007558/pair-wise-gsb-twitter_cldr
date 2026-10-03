@@ -33,6 +33,7 @@ module TwitterCldr
     autoload :SegmentDictionariesImporter,    'twitter_cldr/resources/segment_dictionaries_importer'
     autoload :SegmentRulesImporter,           'twitter_cldr/resources/segment_rules_importer'
     autoload :SegmentTestsImporter,           'twitter_cldr/resources/segment_tests_importer'
+    autoload :SecurityDataImporter,           'twitter_cldr/resources/security_data_importer'
     autoload :RbnfTestImporter,               'twitter_cldr/resources/rbnf_test_importer'
     autoload :ReadmeRenderer,                 'twitter_cldr/resources/readme_renderer'
     autoload :RegexpAstGenerator,             'twitter_cldr/resources/regexp_ast_generator'
@@ -78,6 +79,7 @@ module TwitterCldr
           SegmentDictionariesImporter,
           SegmentRulesImporter,
           SegmentTestsImporter,
+          SecurityDataImporter,
           TailoringImporter,
           TerritoriesImporter,
           TimezonesImporter,

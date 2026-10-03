@@ -112,6 +112,11 @@ namespace :update do
     TwitterCldr::Resources::AliasesImporter.new.import
   end
 
+  desc 'Import UTS #39 security data (confusables.txt)'
+  task :security_data do
+    TwitterCldr::Resources::SecurityDataImporter.new.import
+  end
+
   desc 'Import tailoring resources from CLDR data (should be executed using JRuby 1.7 in 1.9 mode)'
   task :tailoring_data do
     TwitterCldr::Resources::TailoringImporter.new.import

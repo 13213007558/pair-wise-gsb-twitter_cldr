@@ -1,5 +1,11 @@
 # TwitterCldr Changelog
 
+### Unreleased
+* Add `TwitterCldr::Security`, a subset of UTS #39 (Unicode Security Mechanisms) identifier checks for spotting spoofed account names without rejecting legitimate non-Latin or mixed-script names.
+  - Skeleton computation (UTS #39, Section 4) with a case-folded variant, restriction level detection (Section 3.1), and script set resolution that handles Common, Inherited and Script_Extensions (Sections 3.1 and 5.1).
+  - `TwitterCldr::Security.check_identifier` returns structured results (skeleton, restriction level, scripts, specific reason codes) instead of a single "dangerous" boolean.
+  - Security data is pinned to the bundled Unicode version; regenerate the confusables table with `bundle exec rake update:security_data`.
+
 ### 6.14.0 (Feb 21st, 2025)
 * Allow passing the `dst:` option to `LocalizedDateTime#to_*_s`. (@movermeyer, #280)
 

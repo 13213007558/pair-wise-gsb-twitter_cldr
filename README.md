@@ -1,4 +1,4 @@
-## twitter-cldr-rb ![Unit Tests](https://github.com/twitter/twitter-cldr-rb/actions/workflows/unit_tests.yml/badge.svg?branch=master) [![Code Climate](https://codeclimate.com/github/twitter/twitter-cldr-rb.png)](https://codeclimate.com/github/twitter/twitter-cldr-rb) [![Coverage Status](https://coveralls.io/repos/twitter/twitter-cldr-rb/badge.png?branch=master)](https://coveralls.io/r/twitter/twitter-cldr-rb?branch=master)
+## twitter-cldr-rb ![Unit Tests](https://github.com/camertron/rux/actions/workflows/unit_tests.yml/badge.svg?branch=master) [![Code Climate](https://codeclimate.com/github/twitter/twitter-cldr-rb.png)](https://codeclimate.com/github/twitter/twitter-cldr-rb) [![Coverage Status](https://coveralls.io/repos/twitter/twitter-cldr-rb/badge.png?branch=master)](https://coveralls.io/r/twitter/twitter-cldr-rb?branch=master)
 
 TwitterCldr uses Unicode's Common Locale Data Repository (CLDR) to format certain types of text into their
 localized equivalents.  Currently supported types of text include dates, times, currencies, decimals, percentages, and symbols.
@@ -71,7 +71,7 @@ If you're looking for a list of supported currencies, use the `TwitterCldr::Shar
 TwitterCldr::Shared::Currencies.currency_codes             # ["ADP", "AED", "AFA", "AFN", ... ]
 
 # data for a specific currency code
-TwitterCldr::Shared::Currencies.for_code("CAD")            # {:currency=>:CAD, :name=>"Canadian Dollar", :cldr_symbol=>"CA$", :symbol=>"CA$", :code_points=>[67, 65, 36]}
+TwitterCldr::Shared::Currencies.for_code("CAD")            # {currency: :CAD, name: "Canadian Dollar", cldr_symbol: "CA$", symbol: "CA$", code_points: [67, 65, 36]}
 ```
 
 #### Short / Long Decimals
@@ -602,7 +602,7 @@ postal_code.regexp  # /(\d{5})(?:[ \-](\d{4}))?/
 Get a sample of valid postal codes with the `#sample` method:
 
 ```ruby
-postal_code.sample(5)  # ["33623-6826", "59924", "59999", "42268-1200", "68209-4464"]
+postal_code.sample(5)  # ["53476", "37969", "44796", "06713-0014", "46947-1936"]
 ```
 
 ### Phone Codes
@@ -871,6 +871,54 @@ Turkic languages make use of the regular and dotted uppercase i characters "I" a
 "Istanbul".localize(:tr).casefold.to_s         # ıstanbul
 ```
 
+### Identifier Security (UTS #39)
+
+TwitterCLDR provides a subset of [UTS #39 (Unicode Security Mechanisms)](http://www.unicode.org/reports/tr39/) identifier checks, useful for spotting spoofed account names (e.g. Latin lookalikes written with Cyrillic letters) without rejecting legitimate non-Latin or mixed-script names. All security data is pinned to the same Unicode version as the bundled character property data (`TwitterCldr::Versions::UNICODE_VERSION`).
+
+Every check returns structured results — a skeleton, a restriction level, the resolved script set and the specific reasons behind the verdict — rather than a single "dangerous" boolean, so your account system can decide what to allow:
+
+```ruby
+profile = TwitterCldr::Security.check_identifier("鈴木タロウ")  # a normal Japanese mixed-script name
+profile.restriction_level  # highly_restrictive
+profile.scripts            # [:Han, :Katakana]
+profile.reasons            # [{code: :mixed_scripts, scripts: [:Han, :Katakana]}]
+profile.allowed?           # true
+```
+
+Two visually identical names written in different scripts share the same skeleton (UTS #39, Section 4), even when their restriction levels look harmless on their own:
+
+```ruby
+latin = TwitterCldr::Security.check_identifier("paypal")
+spoof = TwitterCldr::Security.check_identifier("раураl")  # Cyrillic р, а, у + Latin l
+
+latin.restriction_level  # ascii
+spoof.restriction_level  # minimally_restrictive
+spoof.skeleton           # paypal
+
+latin.confusable_with?(spoof)[:type]  # mixed_script
+```
+
+Skeletons are case-preserving, so names that differ only in case are reported separately; use the case-folded skeleton (or `case_sensitive: false`) to compare them:
+
+```ruby
+upper = TwitterCldr::Security.check_identifier("John")
+lower = TwitterCldr::Security.check_identifier("john")
+
+upper.confusable_with?(lower)                            # nil
+upper.confusable_with?(lower, case_sensitive: false)[:type]  # whole_script
+upper.case_folded_skeleton                               # john
+```
+
+The supported checks are:
+
+* **Skeleton computation** (UTS #39, Section 4) for confusable detection, plus a case-folded variant for case-insensitive comparison.
+* **Restriction level detection** (UTS #39, Section 3.1): `:ascii`, `:single_script`, `:highly_restrictive`, `:moderately_restrictive`, `:minimally_restrictive` or `:unrestricted`.
+* **Script set resolution** (UTS #39, Sections 3.1 and 5.1) that handles the Common and Inherited script values via the Script_Extensions property. Common/Inherited characters usable with several scripts (e.g. U+30FB KATAKANA MIDDLE DOT) are reported as alternates instead of polluting the identifier's script set — this is what keeps normal Japanese names at `:highly_restrictive`.
+* **Identifier character validation**, approximating the UTS #39 Identifier_Type "Recommended + Inclusion" profile with the ID_Start, ID_Continue and Default_Ignorable_Code_Point properties.
+* **Pairwise confusable comparison**, classified as `:whole_script` or `:mixed_script` (UTS #39, Section 5.2).
+
+The bundled confusables table (`resources/shared/security/confusables.yml`) is a curated subset of the official `confusables.txt` covering the most common cross-script spoofing vectors (Latin/Greek/Cyrillic homoglyphs, fullwidth ASCII, common punctuation lookalikes). Regenerate the complete table from the official Unicode data with `bundle exec rake update:security_data`.
+
 ### Hyphenation
 
 TwitterCLDR uses data from the LibreOffice project to offer an implementation of [Franklin Liang's hyphenation algorithm](http://www.tug.org/docs/liang/). Try the `#hyphenate` method on instances of `LocalizedString`:
@@ -1073,7 +1121,7 @@ TwitterCldr.locale    # will return :ru
 
 ## Compatibility
 
-TwitterCLDR is fully compatible with Ruby 2.5, 2.6, 2.7, 3.0, 3.1, 3.2.
+TwitterCLDR is fully compatible with Ruby 2.5, 2.6, 2.7, 3.0, 3.1, 3.2, 3.3, 3.4.
 
 ## Requirements
 
@@ -1106,6 +1154,6 @@ TwitterCLDR currently supports localization of certain textual objects in JavaSc
 
 ## License
 
-Copyright 2025 Twitter, Inc.
+Copyright 2026 Twitter, Inc.
 
 Licensed under the Apache License, Version 2.0: http://www.apache.org/licenses/LICENSE-2.0
