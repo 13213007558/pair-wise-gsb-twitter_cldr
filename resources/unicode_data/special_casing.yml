@@ -1,0 +1,1175 @@
+---
+- :source: 223
+  :lower:
+  - 223
+  :title:
+  - 83
+  - 115
+  :upper:
+  - 83
+  - 83
+  :conditions: []
+- :source: 304
+  :lower:
+  - 105
+  - 775
+  :title:
+  - 304
+  :upper:
+  - 304
+  :conditions: []
+- :source: 329
+  :lower:
+  - 700
+  - 110
+  :title:
+  - 700
+  - 78
+  :upper:
+  - 700
+  - 78
+  :conditions: []
+- :source: 496
+  :lower:
+  - 106
+  - 780
+  :title:
+  - 74
+  - 780
+  :upper:
+  - 74
+  - 780
+  :conditions: []
+- :source: 912
+  :lower:
+  - 953
+  - 776
+  - 769
+  :title:
+  - 921
+  - 776
+  - 769
+  :upper:
+  - 921
+  - 776
+  - 769
+  :conditions: []
+- :source: 944
+  :lower:
+  - 965
+  - 776
+  - 769
+  :title:
+  - 933
+  - 776
+  - 769
+  :upper:
+  - 933
+  - 776
+  - 769
+  :conditions: []
+- :source: 1415
+  :lower:
+  - 1415
+  :title:
+  - 1333
+  - 1410
+  :upper:
+  - 1333
+  - 1362
+  :conditions: []
+- :source: 7830
+  :lower:
+  - 7830
+  :title:
+  - 72
+  - 817
+  :upper:
+  - 72
+  - 817
+  :conditions: []
+- :source: 7831
+  :lower:
+  - 7831
+  :title:
+  - 84
+  - 776
+  :upper:
+  - 84
+  - 776
+  :conditions: []
+- :source: 7832
+  :lower:
+  - 7832
+  :title:
+  - 87
+  - 778
+  :upper:
+  - 87
+  - 778
+  :conditions: []
+- :source: 7833
+  :lower:
+  - 7833
+  :title:
+  - 89
+  - 778
+  :upper:
+  - 89
+  - 778
+  :conditions: []
+- :source: 7834
+  :lower:
+  - 7834
+  :title:
+  - 65
+  - 702
+  :upper:
+  - 65
+  - 702
+  :conditions: []
+- :source: 8016
+  :lower:
+  - 8016
+  :title:
+  - 933
+  - 787
+  :upper:
+  - 933
+  - 787
+  :conditions: []
+- :source: 8018
+  :lower:
+  - 8018
+  :title:
+  - 933
+  - 787
+  - 768
+  :upper:
+  - 933
+  - 787
+  - 768
+  :conditions: []
+- :source: 8020
+  :lower:
+  - 8020
+  :title:
+  - 933
+  - 787
+  - 769
+  :upper:
+  - 933
+  - 787
+  - 769
+  :conditions: []
+- :source: 8022
+  :lower:
+  - 8022
+  :title:
+  - 933
+  - 787
+  - 834
+  :upper:
+  - 933
+  - 787
+  - 834
+  :conditions: []
+- :source: 8064
+  :lower:
+  - 8064
+  :title:
+  - 8072
+  :upper:
+  - 7944
+  - 921
+  :conditions: []
+- :source: 8072
+  :lower:
+  - 8064
+  :title:
+  - 8072
+  :upper:
+  - 7944
+  - 921
+  :conditions: []
+- :source: 8065
+  :lower:
+  - 8065
+  :title:
+  - 8073
+  :upper:
+  - 7945
+  - 921
+  :conditions: []
+- :source: 8073
+  :lower:
+  - 8065
+  :title:
+  - 8073
+  :upper:
+  - 7945
+  - 921
+  :conditions: []
+- :source: 8066
+  :lower:
+  - 8066
+  :title:
+  - 8074
+  :upper:
+  - 7946
+  - 921
+  :conditions: []
+- :source: 8074
+  :lower:
+  - 8066
+  :title:
+  - 8074
+  :upper:
+  - 7946
+  - 921
+  :conditions: []
+- :source: 8067
+  :lower:
+  - 8067
+  :title:
+  - 8075
+  :upper:
+  - 7947
+  - 921
+  :conditions: []
+- :source: 8075
+  :lower:
+  - 8067
+  :title:
+  - 8075
+  :upper:
+  - 7947
+  - 921
+  :conditions: []
+- :source: 8068
+  :lower:
+  - 8068
+  :title:
+  - 8076
+  :upper:
+  - 7948
+  - 921
+  :conditions: []
+- :source: 8076
+  :lower:
+  - 8068
+  :title:
+  - 8076
+  :upper:
+  - 7948
+  - 921
+  :conditions: []
+- :source: 8069
+  :lower:
+  - 8069
+  :title:
+  - 8077
+  :upper:
+  - 7949
+  - 921
+  :conditions: []
+- :source: 8077
+  :lower:
+  - 8069
+  :title:
+  - 8077
+  :upper:
+  - 7949
+  - 921
+  :conditions: []
+- :source: 8070
+  :lower:
+  - 8070
+  :title:
+  - 8078
+  :upper:
+  - 7950
+  - 921
+  :conditions: []
+- :source: 8078
+  :lower:
+  - 8070
+  :title:
+  - 8078
+  :upper:
+  - 7950
+  - 921
+  :conditions: []
+- :source: 8071
+  :lower:
+  - 8071
+  :title:
+  - 8079
+  :upper:
+  - 7951
+  - 921
+  :conditions: []
+- :source: 8079
+  :lower:
+  - 8071
+  :title:
+  - 8079
+  :upper:
+  - 7951
+  - 921
+  :conditions: []
+- :source: 8080
+  :lower:
+  - 8080
+  :title:
+  - 8088
+  :upper:
+  - 7976
+  - 921
+  :conditions: []
+- :source: 8088
+  :lower:
+  - 8080
+  :title:
+  - 8088
+  :upper:
+  - 7976
+  - 921
+  :conditions: []
+- :source: 8081
+  :lower:
+  - 8081
+  :title:
+  - 8089
+  :upper:
+  - 7977
+  - 921
+  :conditions: []
+- :source: 8089
+  :lower:
+  - 8081
+  :title:
+  - 8089
+  :upper:
+  - 7977
+  - 921
+  :conditions: []
+- :source: 8082
+  :lower:
+  - 8082
+  :title:
+  - 8090
+  :upper:
+  - 7978
+  - 921
+  :conditions: []
+- :source: 8090
+  :lower:
+  - 8082
+  :title:
+  - 8090
+  :upper:
+  - 7978
+  - 921
+  :conditions: []
+- :source: 8083
+  :lower:
+  - 8083
+  :title:
+  - 8091
+  :upper:
+  - 7979
+  - 921
+  :conditions: []
+- :source: 8091
+  :lower:
+  - 8083
+  :title:
+  - 8091
+  :upper:
+  - 7979
+  - 921
+  :conditions: []
+- :source: 8084
+  :lower:
+  - 8084
+  :title:
+  - 8092
+  :upper:
+  - 7980
+  - 921
+  :conditions: []
+- :source: 8092
+  :lower:
+  - 8084
+  :title:
+  - 8092
+  :upper:
+  - 7980
+  - 921
+  :conditions: []
+- :source: 8085
+  :lower:
+  - 8085
+  :title:
+  - 8093
+  :upper:
+  - 7981
+  - 921
+  :conditions: []
+- :source: 8093
+  :lower:
+  - 8085
+  :title:
+  - 8093
+  :upper:
+  - 7981
+  - 921
+  :conditions: []
+- :source: 8086
+  :lower:
+  - 8086
+  :title:
+  - 8094
+  :upper:
+  - 7982
+  - 921
+  :conditions: []
+- :source: 8094
+  :lower:
+  - 8086
+  :title:
+  - 8094
+  :upper:
+  - 7982
+  - 921
+  :conditions: []
+- :source: 8087
+  :lower:
+  - 8087
+  :title:
+  - 8095
+  :upper:
+  - 7983
+  - 921
+  :conditions: []
+- :source: 8095
+  :lower:
+  - 8087
+  :title:
+  - 8095
+  :upper:
+  - 7983
+  - 921
+  :conditions: []
+- :source: 8096
+  :lower:
+  - 8096
+  :title:
+  - 8104
+  :upper:
+  - 8040
+  - 921
+  :conditions: []
+- :source: 8104
+  :lower:
+  - 8096
+  :title:
+  - 8104
+  :upper:
+  - 8040
+  - 921
+  :conditions: []
+- :source: 8097
+  :lower:
+  - 8097
+  :title:
+  - 8105
+  :upper:
+  - 8041
+  - 921
+  :conditions: []
+- :source: 8105
+  :lower:
+  - 8097
+  :title:
+  - 8105
+  :upper:
+  - 8041
+  - 921
+  :conditions: []
+- :source: 8098
+  :lower:
+  - 8098
+  :title:
+  - 8106
+  :upper:
+  - 8042
+  - 921
+  :conditions: []
+- :source: 8106
+  :lower:
+  - 8098
+  :title:
+  - 8106
+  :upper:
+  - 8042
+  - 921
+  :conditions: []
+- :source: 8099
+  :lower:
+  - 8099
+  :title:
+  - 8107
+  :upper:
+  - 8043
+  - 921
+  :conditions: []
+- :source: 8107
+  :lower:
+  - 8099
+  :title:
+  - 8107
+  :upper:
+  - 8043
+  - 921
+  :conditions: []
+- :source: 8100
+  :lower:
+  - 8100
+  :title:
+  - 8108
+  :upper:
+  - 8044
+  - 921
+  :conditions: []
+- :source: 8108
+  :lower:
+  - 8100
+  :title:
+  - 8108
+  :upper:
+  - 8044
+  - 921
+  :conditions: []
+- :source: 8101
+  :lower:
+  - 8101
+  :title:
+  - 8109
+  :upper:
+  - 8045
+  - 921
+  :conditions: []
+- :source: 8109
+  :lower:
+  - 8101
+  :title:
+  - 8109
+  :upper:
+  - 8045
+  - 921
+  :conditions: []
+- :source: 8102
+  :lower:
+  - 8102
+  :title:
+  - 8110
+  :upper:
+  - 8046
+  - 921
+  :conditions: []
+- :source: 8110
+  :lower:
+  - 8102
+  :title:
+  - 8110
+  :upper:
+  - 8046
+  - 921
+  :conditions: []
+- :source: 8103
+  :lower:
+  - 8103
+  :title:
+  - 8111
+  :upper:
+  - 8047
+  - 921
+  :conditions: []
+- :source: 8111
+  :lower:
+  - 8103
+  :title:
+  - 8111
+  :upper:
+  - 8047
+  - 921
+  :conditions: []
+- :source: 8114
+  :lower:
+  - 8114
+  :title:
+  - 8122
+  - 837
+  :upper:
+  - 8122
+  - 921
+  :conditions: []
+- :source: 8115
+  :lower:
+  - 8115
+  :title:
+  - 913
+  - 837
+  :upper:
+  - 913
+  - 921
+  :conditions: []
+- :source: 8116
+  :lower:
+  - 8116
+  :title:
+  - 902
+  - 837
+  :upper:
+  - 902
+  - 921
+  :conditions: []
+- :source: 8118
+  :lower:
+  - 8118
+  :title:
+  - 913
+  - 834
+  :upper:
+  - 913
+  - 834
+  :conditions: []
+- :source: 8119
+  :lower:
+  - 8119
+  :title:
+  - 913
+  - 834
+  - 837
+  :upper:
+  - 913
+  - 834
+  - 921
+  :conditions: []
+- :source: 8124
+  :lower:
+  - 8115
+  :title:
+  - 8124
+  :upper:
+  - 913
+  - 921
+  :conditions: []
+- :source: 8130
+  :lower:
+  - 8130
+  :title:
+  - 8138
+  - 837
+  :upper:
+  - 8138
+  - 921
+  :conditions: []
+- :source: 8131
+  :lower:
+  - 8131
+  :title:
+  - 919
+  - 837
+  :upper:
+  - 919
+  - 921
+  :conditions: []
+- :source: 8132
+  :lower:
+  - 8132
+  :title:
+  - 905
+  - 837
+  :upper:
+  - 905
+  - 921
+  :conditions: []
+- :source: 8134
+  :lower:
+  - 8134
+  :title:
+  - 919
+  - 834
+  :upper:
+  - 919
+  - 834
+  :conditions: []
+- :source: 8135
+  :lower:
+  - 8135
+  :title:
+  - 919
+  - 834
+  - 837
+  :upper:
+  - 919
+  - 834
+  - 921
+  :conditions: []
+- :source: 8140
+  :lower:
+  - 8131
+  :title:
+  - 8140
+  :upper:
+  - 919
+  - 921
+  :conditions: []
+- :source: 8146
+  :lower:
+  - 8146
+  :title:
+  - 921
+  - 776
+  - 768
+  :upper:
+  - 921
+  - 776
+  - 768
+  :conditions: []
+- :source: 8147
+  :lower:
+  - 8147
+  :title:
+  - 921
+  - 776
+  - 769
+  :upper:
+  - 921
+  - 776
+  - 769
+  :conditions: []
+- :source: 8150
+  :lower:
+  - 8150
+  :title:
+  - 921
+  - 834
+  :upper:
+  - 921
+  - 834
+  :conditions: []
+- :source: 8151
+  :lower:
+  - 8151
+  :title:
+  - 921
+  - 776
+  - 834
+  :upper:
+  - 921
+  - 776
+  - 834
+  :conditions: []
+- :source: 8162
+  :lower:
+  - 8162
+  :title:
+  - 933
+  - 776
+  - 768
+  :upper:
+  - 933
+  - 776
+  - 768
+  :conditions: []
+- :source: 8163
+  :lower:
+  - 8163
+  :title:
+  - 933
+  - 776
+  - 769
+  :upper:
+  - 933
+  - 776
+  - 769
+  :conditions: []
+- :source: 8164
+  :lower:
+  - 8164
+  :title:
+  - 929
+  - 787
+  :upper:
+  - 929
+  - 787
+  :conditions: []
+- :source: 8166
+  :lower:
+  - 8166
+  :title:
+  - 933
+  - 834
+  :upper:
+  - 933
+  - 834
+  :conditions: []
+- :source: 8167
+  :lower:
+  - 8167
+  :title:
+  - 933
+  - 776
+  - 834
+  :upper:
+  - 933
+  - 776
+  - 834
+  :conditions: []
+- :source: 8178
+  :lower:
+  - 8178
+  :title:
+  - 8186
+  - 837
+  :upper:
+  - 8186
+  - 921
+  :conditions: []
+- :source: 8179
+  :lower:
+  - 8179
+  :title:
+  - 937
+  - 837
+  :upper:
+  - 937
+  - 921
+  :conditions: []
+- :source: 8180
+  :lower:
+  - 8180
+  :title:
+  - 911
+  - 837
+  :upper:
+  - 911
+  - 921
+  :conditions: []
+- :source: 8182
+  :lower:
+  - 8182
+  :title:
+  - 937
+  - 834
+  :upper:
+  - 937
+  - 834
+  :conditions: []
+- :source: 8183
+  :lower:
+  - 8183
+  :title:
+  - 937
+  - 834
+  - 837
+  :upper:
+  - 937
+  - 834
+  - 921
+  :conditions: []
+- :source: 8188
+  :lower:
+  - 8179
+  :title:
+  - 8188
+  :upper:
+  - 937
+  - 921
+  :conditions: []
+- :source: 64256
+  :lower:
+  - 64256
+  :title:
+  - 70
+  - 102
+  :upper:
+  - 70
+  - 70
+  :conditions: []
+- :source: 64257
+  :lower:
+  - 64257
+  :title:
+  - 70
+  - 105
+  :upper:
+  - 70
+  - 73
+  :conditions: []
+- :source: 64258
+  :lower:
+  - 64258
+  :title:
+  - 70
+  - 108
+  :upper:
+  - 70
+  - 76
+  :conditions: []
+- :source: 64259
+  :lower:
+  - 64259
+  :title:
+  - 70
+  - 102
+  - 105
+  :upper:
+  - 70
+  - 70
+  - 73
+  :conditions: []
+- :source: 64260
+  :lower:
+  - 64260
+  :title:
+  - 70
+  - 102
+  - 108
+  :upper:
+  - 70
+  - 70
+  - 76
+  :conditions: []
+- :source: 64261
+  :lower:
+  - 64261
+  :title:
+  - 83
+  - 116
+  :upper:
+  - 83
+  - 84
+  :conditions: []
+- :source: 64262
+  :lower:
+  - 64262
+  :title:
+  - 83
+  - 116
+  :upper:
+  - 83
+  - 84
+  :conditions: []
+- :source: 64275
+  :lower:
+  - 64275
+  :title:
+  - 1348
+  - 1398
+  :upper:
+  - 1348
+  - 1350
+  :conditions: []
+- :source: 64276
+  :lower:
+  - 64276
+  :title:
+  - 1348
+  - 1381
+  :upper:
+  - 1348
+  - 1333
+  :conditions: []
+- :source: 64277
+  :lower:
+  - 64277
+  :title:
+  - 1348
+  - 1387
+  :upper:
+  - 1348
+  - 1339
+  :conditions: []
+- :source: 64278
+  :lower:
+  - 64278
+  :title:
+  - 1358
+  - 1398
+  :upper:
+  - 1358
+  - 1350
+  :conditions: []
+- :source: 64279
+  :lower:
+  - 64279
+  :title:
+  - 1348
+  - 1389
+  :upper:
+  - 1348
+  - 1341
+  :conditions: []
+- :source: 931
+  :lower:
+  - 962
+  :title:
+  - 931
+  :upper:
+  - 931
+  :conditions:
+  - Final_Sigma
+- :source: 73
+  :lower:
+  - 105
+  - 775
+  :title:
+  - 73
+  :upper:
+  - 73
+  :conditions:
+  - lt
+  - More_Above
+- :source: 74
+  :lower:
+  - 106
+  - 775
+  :title:
+  - 74
+  :upper:
+  - 74
+  :conditions:
+  - lt
+  - More_Above
+- :source: 302
+  :lower:
+  - 303
+  - 775
+  :title:
+  - 302
+  :upper:
+  - 302
+  :conditions:
+  - lt
+  - More_Above
+- :source: 204
+  :lower:
+  - 105
+  - 775
+  - 768
+  :title:
+  - 204
+  :upper:
+  - 204
+  :conditions:
+  - lt
+- :source: 205
+  :lower:
+  - 105
+  - 775
+  - 769
+  :title:
+  - 205
+  :upper:
+  - 205
+  :conditions:
+  - lt
+- :source: 296
+  :lower:
+  - 105
+  - 775
+  - 771
+  :title:
+  - 296
+  :upper:
+  - 296
+  :conditions:
+  - lt
+- :source: 775
+  :lower:
+  - 775
+  :title:
+  - 775
+  :upper: []
+  :conditions:
+  - lt
+  - After_Soft_Dotted
+- :source: 304
+  :lower:
+  - 105
+  :title:
+  - 304
+  :upper:
+  - 304
+  :conditions:
+  - tr
+- :source: 775
+  :lower: []
+  :title:
+  - 775
+  :upper:
+  - 775
+  :conditions:
+  - tr
+  - After_I
+- :source: 73
+  :lower:
+  - 305
+  :title:
+  - 73
+  :upper:
+  - 73
+  :conditions:
+  - tr
+  - Not_Before_Dot
+- :source: 105
+  :lower:
+  - 105
+  :title:
+  - 304
+  :upper:
+  - 304
+  :conditions:
+  - tr
+- :source: 304
+  :lower:
+  - 105
+  :title:
+  - 304
+  :upper:
+  - 304
+  :conditions:
+  - az
+- :source: 775
+  :lower: []
+  :title:
+  - 775
+  :upper:
+  - 775
+  :conditions:
+  - az
+  - After_I
+- :source: 73
+  :lower:
+  - 305
+  :title:
+  - 73
+  :upper:
+  - 73
+  :conditions:
+  - az
+  - Not_Before_Dot
+- :source: 105
+  :lower:
+  - 105
+  :title:
+  - 304
+  :upper:
+  - 304
+  :conditions:
+  - az

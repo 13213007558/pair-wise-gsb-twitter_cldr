@@ -11,8 +11,9 @@ module TwitterCldr
       BLOCKS_FILE           = 'ucd/Blocks.txt'
       UNICODE_DATA_FILE     = 'ucd/UnicodeData.txt'
       CASEFOLDING_DATA_FILE = 'ucd/CaseFolding.txt'
+      SPECIAL_CASING_FILE   = 'ucd/SpecialCasing.txt'
 
-      requirement :unicode, Versions.unicode_version, [BLOCKS_FILE, UNICODE_DATA_FILE, CASEFOLDING_DATA_FILE]
+      requirement :unicode, Versions.unicode_version, [BLOCKS_FILE, UNICODE_DATA_FILE, CASEFOLDING_DATA_FILE, SPECIAL_CASING_FILE]
       output_path 'unicode_data'
       ruby_engine :mri
 
@@ -20,6 +21,7 @@ module TwitterCldr
         blocks           = import_blocks
         unicode_data     = import_unicode_data(blocks)
         casefolding_data = import_casefolding_data
+        special_casing   = import_special_casing_data
 
         STDOUT.write('Writing data to disk... ')
 
@@ -39,6 +41,10 @@ module TwitterCldr
 
         File.open(File.join(output_path, 'casefolding.yml'), 'w') do |output|
           YAML.dump(casefolding_data, output)
+        end
+
+        File.open(File.join(output_path, 'special_casing.yml'), 'w') do |output|
+          YAML.dump(special_casing, output)
         end
 
         puts 'done'
@@ -101,6 +107,27 @@ module TwitterCldr
 
         puts 'done'
         casefolding_data
+      end
+
+      def import_special_casing_data
+        STDOUT.write('Importing special casing data... ')
+
+        special_casing_data = parse_file(special_casing_file).map do |data|
+          {
+            source: data[0].hex,
+            lower: data[1].split(' ').map(&:hex),
+            title: data[2].split(' ').map(&:hex),
+            upper: data[3].split(' ').map(&:hex),
+            conditions: data[4] ? data[4].split(' ') : []
+          }
+        end
+
+        puts 'done'
+        special_casing_data
+      end
+
+      def special_casing_file
+        requirements[:unicode].source_path_for(SPECIAL_CASING_FILE)
       end
 
       def casefold_data_file
