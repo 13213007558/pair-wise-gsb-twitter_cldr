@@ -74,6 +74,34 @@ module TwitterCldr
         end
       end
 
+      def incremental_session(max_pending_size = nil)
+        ConversionSession.new(self, max_pending_size)
+      end
+
+      def matching_rule_at(cursor)
+        find_matching_rule_at(cursor)
+      end
+
+      def candidate_rules(cursor)
+        indexed_rules = rule_index.get(cursor.index_values) || []
+        blank_rules = rule_index.get([0]) || []
+        (indexed_rules + blank_rules).uniq
+      end
+
+      def before_context_limit
+        @before_context_limit ||= rules.inject(0) do |limit, rule|
+          next(limit) unless rule.forward?
+          rule_limit = rule.left.before_context_max_size
+          [limit, rule_limit].max
+        end
+      end
+
+      def unbounded_before_context_rules
+        @unbounded_before_context_rules ||= rules.select do |rule|
+          rule.forward? && rule.left.unbounded_before_context?
+        end
+      end
+
       private
 
       def inverted_rules

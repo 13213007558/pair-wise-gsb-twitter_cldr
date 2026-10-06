@@ -20,7 +20,9 @@ module TwitterCldr
               transform.accepts?(forward_form, backward_form)
             end
 
-            transform_class.new(forward_form, backward_form)
+            transform_class.new(
+              forward_form, backward_form, rule_text
+            )
           end
 
           def accepts?(rule_text)
@@ -67,9 +69,12 @@ module TwitterCldr
 
         attr_reader :forward_form, :backward_form
 
-        def initialize(forward_form, backward_form)
+        attr_reader :original_rule_text
+
+        def initialize(forward_form, backward_form, original_rule_text = nil)
           @forward_form = forward_form
           @backward_form = backward_form
+          @original_rule_text = original_rule_text
           after_initialize
         end
 

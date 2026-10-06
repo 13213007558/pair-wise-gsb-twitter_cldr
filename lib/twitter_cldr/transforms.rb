@@ -12,6 +12,7 @@ module TwitterCldr
     autoload :Filters,           'twitter_cldr/transforms/filters'
     autoload :FilteredRuleSet,   'twitter_cldr/transforms/filtered_rule_set'
     autoload :Locale,            'twitter_cldr/transforms/transformer'
+    autoload :PartialRegexp,     'twitter_cldr/transforms/partial_regexp'
     autoload :Rule,              'twitter_cldr/transforms/rule'
     autoload :RuleMatch,         'twitter_cldr/transforms/rule_match'
     autoload :RuleSet,           'twitter_cldr/transforms/rule_set'
@@ -20,6 +21,7 @@ module TwitterCldr
     autoload :Transforms,        'twitter_cldr/transforms/transforms'
     autoload :TransformId,       'twitter_cldr/transforms/transform_id'
     autoload :Transliterator,    'twitter_cldr/transforms/transliterator'
+    autoload :TransformSession,  'twitter_cldr/transforms/transform_session'
     autoload :VariableRule,      'twitter_cldr/transforms/variable_rule'
   end
 end

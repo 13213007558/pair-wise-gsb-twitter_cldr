@@ -45,6 +45,26 @@ module TwitterCldr
           end
         end
 
+        def key_prefix_match?(cursor)
+          key_prefix_regexp.match?(cursor.text, cursor.position)
+        end
+
+        def key_match_extendable?(text, stop)
+          key_prefix_regexp.match?(text, stop)
+        end
+
+        def before_context_match?(cursor)
+          !!match_before(cursor)
+        end
+
+        def before_context_max_size
+          before_context_analysis.max_size
+        end
+
+        def unbounded_before_context?
+          before_context_analysis.unbounded?
+        end
+
         def match_before(cursor)
           cursor.text.scan(before_context_regexp) do
             match = Regexp.last_match
@@ -100,6 +120,16 @@ module TwitterCldr
 
         def after_context_regexp
           @after_context_regexp ||= compile_regexp(after_context).to_regexp
+        end
+
+        def key_prefix_regexp
+          @key_prefix_regexp ||= PartialRegexp.new(
+            Rule.regexp_token_string(key)
+          ).to_regexp
+        end
+
+        def before_context_analysis
+          @before_context_analysis ||= PartialRegexp.new(before_context)
         end
 
         # This is a pretty big hack. The problem we're trying to solve here

@@ -23,6 +23,10 @@ module TwitterCldr
         cursor.text
       end
 
+      def session(max_pending_size = TransformSession.DEFAULT_MAX_PENDING_SIZE)
+        TransformSession.send(:new, self, max_pending_size)
+      end
+
       def invert
         self.class.new(
           rules.reverse.map(&:invert), transform_id
