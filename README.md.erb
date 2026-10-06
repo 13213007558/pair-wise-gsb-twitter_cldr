@@ -948,6 +948,25 @@ rule_set = TwitterCldr::Transforms::Transformer.get(id)
 rule_set.transform('くろねこさま')  # "<%= rule_set.transform('くろねこさま') %>"
 ```
 
+### Incremental Transforms
+
+If the text arrives in chunks (for example from a transcription service), a one-shot transform is awkward: transforming each chunk on its own breaks rules that need context from a neighboring chunk, while re-transforming the whole history every time repeats work that's already done. `TwitterCldr::Transforms::Session` solves this by accepting text incrementally and returning only output that is already final:
+
+<% session = TwitterCldr::Transforms::Transformer.get('Cyrillic-Latin').session %>
+
+```ruby
+session = TwitterCldr::Transforms::Transformer.get('Cyrillic-Latin').session
+session.push('При')   # "<%= session.push('При') %>"
+session.push('вет')   # "<%= session.push('вет') %>"
+session.finish        # "<%= session.finish %>"
+```
+
+The concatenation of everything returned by `push` and `finish` is exactly the result of transforming the concatenation of all pushed text in one shot. If the end of the buffered text could still match a longer rule (for example a rule whose after-context hasn't arrived yet), the session holds the necessary text back instead of emitting output it might have to take back; only `finish` treats the end of the buffer as the true end of the text. The held-back region is limited (`max_pending`, 1024 characters by default); if it grows beyond the limit, the session raises `TwitterCldr::Transforms::PendingLimitExceededError` identifying the rule that is blocking progress rather than emitting a potentially incorrect result. Sessions created from the same rule set share the read-only rules but keep their own cursor and pending text, so any number of independent sessions can run side by side.
+
+```ruby
+session = rule_set.session(max_pending: 128)
+```
+
 ### Handling Bidirectional Text
 
 When it comes to displaying text written in both right-to-left (RTL) and left-to-right (LTR) languages, most display systems run into problems.  The trouble is that Arabic or Hebrew text and English text (for example) often get scrambled visually and are therefore difficult to read.  It's not usually the basic ASCII characters like A-Z that get scrambled - it's most often punctuation marks and the like that are confusingly mixed up (they are considered "weak" types by Unicode).

@@ -23,6 +23,13 @@ module TwitterCldr
         cursor.text
       end
 
+      # Creates an incremental transform session over this rule set. The
+      # rule set is shared (and treated as read-only) between sessions;
+      # each session keeps its own cursor and pending text.
+      def session(**options)
+        Session.new(self, **options)
+      end
+
       def invert
         self.class.new(
           rules.reverse.map(&:invert), transform_id

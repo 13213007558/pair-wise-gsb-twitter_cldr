@@ -74,16 +74,13 @@ module TwitterCldr
         end
       end
 
-      private
-
-      def inverted_rules
-        @inverted_rules ||= begin
-          rules.each_with_object([]) do |rule, ret|
-            if rule.can_invert?
-              ret << rule.invert
-            end
-          end
-        end
+      # All rules that could possibly match at the cursor's current
+      # position: rules indexed by the codepoints at the cursor plus any
+      # rules whose keys don't start with fixed codepoints.
+      def candidate_rules_at(cursor)
+        indexed = rule_index.get(cursor.index_values) || []
+        blank_key = rule_index.get([0]) || []
+        indexed + blank_key
       end
 
       def find_matching_rule_at(cursor)
@@ -102,6 +99,18 @@ module TwitterCldr
           end
         else
           blank_key_match
+        end
+      end
+
+      private
+
+      def inverted_rules
+        @inverted_rules ||= begin
+          rules.each_with_object([]) do |rule, ret|
+            if rule.can_invert?
+              ret << rule.invert
+            end
+          end
         end
       end
 

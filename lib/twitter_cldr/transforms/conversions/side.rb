@@ -84,22 +84,38 @@ module TwitterCldr
           end
         end
 
+        # The compiled UnicodeRegex objects behind each part of this side.
+        # They're exposed (rather than just the Ruby regexps built from them)
+        # so incremental tools like Transforms::Session can analyze the
+        # pattern structure directly.
+        def before_context_uregexp
+          @before_context_uregexp ||= compile_regexp(before_context)
+        end
+
+        def key_uregexp
+          @key_uregexp ||= compile_regexp(Rule.regexp_token_string(key))
+        end
+
+        def after_context_uregexp
+          @after_context_uregexp ||= compile_regexp(after_context)
+        end
+
         private
 
         def before_context_regexp
-          @before_context_regexp ||= compile_regexp(before_context).to_regexp
+          @before_context_regexp ||= before_context_uregexp.to_regexp
         end
 
         def key_u_regexp
-          @key_u_regexp ||= compile_regexp(Rule.regexp_token_string(key))
+          key_uregexp
         end
 
         def key_regexp
-          @key_regexp ||= key_u_regexp.to_regexp
+          @key_regexp ||= key_uregexp.to_regexp
         end
 
         def after_context_regexp
-          @after_context_regexp ||= compile_regexp(after_context).to_regexp
+          @after_context_regexp ||= after_context_uregexp.to_regexp
         end
 
         # This is a pretty big hack. The problem we're trying to solve here
