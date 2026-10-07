@@ -26,6 +26,7 @@ module TwitterCldr
     autoload :Loader,                         'twitter_cldr/resources/loader'
     autoload :LocalesResourcesImporter,       'twitter_cldr/resources/locales_resources_importer'
     autoload :NumberFormatsImporter,          'twitter_cldr/resources/number_formats_importer'
+    autoload :NumberRangesImporter,           'twitter_cldr/resources/number_ranges_importer'
     autoload :ParentLocalesImporter,          'twitter_cldr/resources/parent_locales_importer'
     autoload :PostalCodesImporter,            'twitter_cldr/resources/postal_codes_importer'
     autoload :Properties,                     'twitter_cldr/resources/properties'
@@ -72,6 +73,7 @@ module TwitterCldr
           ListFormatsImporter,
           LocalesResourcesImporter,
           NumberFormatsImporter,
+          NumberRangesImporter,
           ParentLocalesImporter,
           PostalCodesImporter,
           RbnfTestImporter,

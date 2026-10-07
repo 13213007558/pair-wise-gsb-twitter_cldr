@@ -35,6 +35,20 @@ module TwitterCldr
           .format_number(base_obj, opts)
       end
 
+      # Formats a number range with this number's type/format/locale. The
+      # result is a TwitterCldr::Formatters::NumberRangeResult carrying the
+      # final text and the provenance of each of its fragments.
+      #
+      #   3.localize.to_range(5).text            # "3–5"
+      #   3.localize.to_currency.to_range(5)     # "$3.00–$5.00"
+      def to_range(other, options = {})
+        opts = { type: @type, format: @format }.merge(options)
+
+        TwitterCldr::DataReaders::NumberDataReader
+          .new(locale, opts)
+          .format_number_range(base_obj, other, opts)
+      end
+
       def plural_rule
         TwitterCldr::Formatters::Plurals::Rules.rule_for(base_obj, locale)
       end

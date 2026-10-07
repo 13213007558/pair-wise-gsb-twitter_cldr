@@ -1,0 +1,58 @@
+# Number range patterns and plural range rules, keyed by locale.
+#
+# Patterns follow CLDR's numberRange syntax:
+#   {0} is replaced by the formatted start (left endpoint),
+#   {1} is replaced by the formatted end (right endpoint).
+#
+# :patterns holds the (potentially locale-tailored) fallback pattern per
+# number type, mirroring CLDR's miscPattern[@type="interval"] entries.
+#
+# :plural_ranges holds intervalPattern[@fallback="..."] tables, keyed by the
+# plural category of the left endpoint. Each value is keyed by the plural
+# category of the right endpoint and points at the pattern to use.
+:en:
+  :patterns:
+    :decimal: "{0}–{1}"
+    :percent: "{0}–{1}"
+    :currency: "{0}–{1}"
+  :plural_ranges:
+    :one:
+      :one: "{0}–{1}"
+      :other: "{0}–{1}"
+    :other:
+      :one: "{0}–{1}"
+      :other: "{0}–{1}"
+:fr:
+  :patterns:
+    :decimal: "{0} – {1}"
+    :percent: "{0} – {1}"
+    :currency: "{0} – {1}"
+  :plural_ranges:
+    :one:
+      :one: "{0} – {1}"
+      :many: "{0} – {1}"
+      :other: "{0} – {1}"
+    :many:
+      :one: "{0} – {1}"
+      :many: "{0} – {1}"
+      :other: "{0} – {1}"
+    :other:
+      :one: "{0} – {1}"
+      :many: "{0} – {1}"
+      :other: "{0} – {1}"
+:ja:
+  :patterns:
+    :decimal: "{0}～{1}"
+    :percent: "{0}～{1}"
+    :currency: "{0}～{1}"
+  :plural_ranges:
+    :other:
+      :other: "{0}～{1}"
+:root:
+  :patterns:
+    :decimal: "{0}–{1}"
+    :percent: "{0}–{1}"
+    :currency: "{0}–{1}"
+  :plural_ranges:
+    :other:
+      :other: "{0}–{1}"

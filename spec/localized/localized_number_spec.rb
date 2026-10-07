@@ -88,6 +88,36 @@ describe TwitterCldr::Localized::LocalizedNumber do
       end.to raise_error(ArgumentError, 'Type foo is not supported')
     end
 
+    describe '#to_range' do
+      it 'formats a decimal range and returns a result with provenance fragments' do
+        result = described_class.new(3, :en).to_range(5)
+        expect(result).to be_a(TwitterCldr::Formatters::NumberRangeResult)
+        expect(result.text).to eq('3–5')
+        expect(result.fragments.map(&:source)).to eq([:left, :shared, :right])
+      end
+
+      it 'preserves the number type (currency, percent)' do
+        currency = described_class.new(3, :en, type: :currency).to_range(5)
+        expect(currency.text).to eq('$3.00–5.00')
+
+        percent = described_class.new(0.3, :en, type: :percent).to_range(0.5)
+        expect(percent.text).to eq('0.3–0.5%')
+      end
+
+      it 'preserves the compact format' do
+        result = described_class.new(3_000, :en, type: :decimal, format: :short)
+          .to_range(5_000)
+        expect(result.text).to eq('3–5K')
+      end
+
+      it 'slices every fragment back out of the final text' do
+        result = described_class.new(3.5, :en).to_range(4.5)
+        result.fragments.each do |fragment|
+          expect(result.slice(fragment)).to eq(fragment.text)
+        end
+      end
+    end
+
     context 'decimals' do
       let(:number) { described_class.new(10, :en) }
 

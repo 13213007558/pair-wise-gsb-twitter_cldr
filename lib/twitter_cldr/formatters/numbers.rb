@@ -9,6 +9,8 @@ module TwitterCldr
       autoload :Base,     'twitter_cldr/formatters/numbers/helpers/base'
       autoload :Fraction, 'twitter_cldr/formatters/numbers/helpers/fraction'
       autoload :Integer,  'twitter_cldr/formatters/numbers/helpers/integer'
+      autoload :NumberRangeFormatter, 'twitter_cldr/formatters/numbers/number_range_formatter'
+      autoload :NumberRangeResult,    'twitter_cldr/formatters/numbers/number_range_result'
     end
   end
 end

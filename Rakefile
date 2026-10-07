@@ -87,6 +87,11 @@ namespace :update do
     TwitterCldr::Resources::NumberFormatsImporter.new.import
   end
 
+  desc 'Import number range patterns and plural range rules'
+  task :number_ranges do
+    TwitterCldr::Resources::NumberRangesImporter.new.import
+  end
+
   desc 'Import list formats'
   task :list_formats do
     TwitterCldr::Resources::ListFormatsImporter.new.import

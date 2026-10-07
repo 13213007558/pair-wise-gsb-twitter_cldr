@@ -58,7 +58,16 @@ module TwitterCldr
         formatter.format(tokens, number, options)
       end
 
+      # Formats a number range (a pair of endpoints) with a shared
+      # precision/rounding configuration. Returns a
+      # TwitterCldr::Formatters::NumberRangeResult describing the final text
+      # and the provenance of each of its fragments.
+      def format_number_range(left, right, options = {})
+        range_formatter.format(left, right, options)
+      end
+
       def pattern(number, decimal = true)
+        return pattern_for_non_finite(number) unless finite_number?(number)
         zeroes = number.to_i.abs.to_s.size - 1
         magnitude = "1#{'0' * zeroes}"
         truncated_num = formatter.truncate_number(number, zeroes % 3 + 1)
@@ -90,6 +99,50 @@ module TwitterCldr
 
       def formatter
         @formatter ||= FORMATTERS[type].new(self)
+      end
+
+      def range_formatter
+        @range_formatter ||= TwitterCldr::Formatters::NumberRangeFormatter.new(self)
+      end
+
+      # Resolves the tokens used to format +number+, applying the same
+      # precision-aware pattern selection as {#format_number}.
+      def tokens_for(number, options = {})
+        precision = options[:precision] || 0
+        tokenizer.tokenize(pattern(number, precision == 0))
+      end
+
+      # Resolves precision/rounding options shared by both range endpoints.
+      def shared_number_options(left, right, options = {})
+        formatter.shared_options(left, right, options)
+      end
+
+      def plural_rule(number)
+        PluralRules.rule_for(number, locale)
+      end
+
+      def range_pattern(left_rule, right_rule)
+        TwitterCldr::Shared::NumberRanges.pattern_for(
+          locale, type, left_rule, right_rule
+        )
+      end
+
+      def finite_number?(number)
+        number.respond_to?(:finite?) ? number.finite? : true
+      end
+
+      def pattern_for_non_finite(number)
+        sign = number.respond_to?(:negative?) && number.negative? ? :negative : :positive
+        # Infinity/NaN are rendered as symbols and have no magnitude, so the
+        # base (non-compact) pattern for the type/number system is used.
+        path = PATTERN_PATH + [
+          type,
+          number_system,
+          [[format, :default], :default]
+        ]
+        pattern_for_sign(
+          traverse_finding_best_fit(path, []), sign
+        )
       end
 
       def default_number_system
