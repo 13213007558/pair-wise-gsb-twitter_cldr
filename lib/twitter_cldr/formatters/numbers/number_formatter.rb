@@ -7,6 +7,15 @@ module TwitterCldr
   module Formatters
     class NumberFormatter < Formatter
 
+      # Decomposed representation of a formatted number. Used by range
+      # formatting, which needs to know which parts of the text are
+      # affixes (prefix/suffix) and which part is the number itself.
+      Parts = Struct.new(:prefix, :number, :suffix) do
+        def text
+          "#{prefix}#{number}#{suffix}"
+        end
+      end
+
       attr_reader :data_reader
 
       def initialize(data_reader)
@@ -29,6 +38,50 @@ module TwitterCldr
         )
       end
 
+      # Formats a single number and returns a Parts struct instead of a
+      # plain string. Shares precision/rounding options with the caller via
+      # the (mutated) options hash, just like #format does.
+      def format_parts(tokens, number, options = {})
+        options[:precision] ||= precision_from(number)
+        options[:type] ||= :decimal
+
+        prefix, suffix, integer_format, fraction_format = *partition_tokens(tokens)
+
+        result = if special_number?(number)
+          special_text_for(number)
+        else
+          number = truncate_number(number, integer_format.format.length)
+          int, fraction = parse_number(number, options)
+          text = integer_format.apply(int, options)
+          text << fraction_format.apply(fraction, options) if fraction
+          text
+        end
+
+        Parts.new(
+          number_system.transliterate(prefix.to_s),
+          number_system.transliterate(result),
+          number_system.transliterate(suffix.to_s)
+        )
+      end
+
+      # Unifies precision/rounding options for both ends of a range before
+      # either end is formatted. Subclasses (e.g. currency) override this to
+      # supply their own defaults.
+      def prepare_range_options(left, right, options)
+        return if options[:precision]
+
+        precisions = [left, right].reject do |number|
+          special_number?(number)
+        end.map { |number| precision_from(number) }
+
+        options[:precision] = precisions.max || 0
+      end
+
+      def special_number?(number)
+        (number.respond_to?(:infinite?) && number.infinite?) ||
+          (number.respond_to?(:nan?) && number.nan?)
+      end
+
       def truncate_number(number, decimal_digits)
         if abbreviate?(number)
           factor = [0, number.to_i.abs.to_s.length - decimal_digits].max
@@ -39,6 +92,14 @@ module TwitterCldr
       end
 
       protected
+
+      def special_text_for(number)
+        if number.respond_to?(:nan?) && number.nan?
+          data_reader.symbols[:nan] || 'NaN'
+        else
+          data_reader.symbols[:infinity] || '∞'
+        end
+      end
 
       def number_system
         @number_system ||= TwitterCldr::Shared::NumberingSystem.for_name(

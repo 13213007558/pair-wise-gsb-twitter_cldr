@@ -35,6 +35,14 @@ module TwitterCldr
           .format_number(base_obj, opts)
       end
 
+      def to_range(other, options = {})
+        opts = { type: @type, format: @format }.merge(options)
+
+        TwitterCldr::DataReaders::NumberDataReader
+          .new(locale, opts)
+          .format_range(base_obj, other, opts)
+      end
+
       def plural_rule
         TwitterCldr::Formatters::Plurals::Rules.rule_for(base_obj, locale)
       end

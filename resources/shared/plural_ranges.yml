@@ -1,0 +1,59 @@
+# CLDR plural range rules (supplemental pluralRanges). For a range whose
+# endpoints have the given plural categories, the entry maps
+# [start_category][end_category] to the category of the range as a whole.
+# Locales without an entry (and missing pairs) fall back to the category
+# of the range end, per CLDR.
+:root: {}
+:be:
+  :one:
+    :few: :few
+    :other: :other
+  :few:
+    :other: :other
+:bs:
+  :one:
+    :few: :few
+    :other: :other
+  :few:
+    :other: :other
+:hr:
+  :one:
+    :few: :few
+    :other: :other
+  :few:
+    :other: :other
+:ky:
+  :one:
+    :other: :other
+:mk:
+  :one:
+    :other: :other
+:ro:
+  :one:
+    :few: :few
+    :other: :few
+:ru:
+  :one:
+    :few: :few
+    :other: :other
+  :few:
+    :other: :other
+:sl:
+  :one:
+    :other: :few
+  :two:
+    :other: :few
+  :few:
+    :other: :other
+:sr:
+  :one:
+    :few: :few
+    :other: :other
+  :few:
+    :other: :other
+:uk:
+  :one:
+    :few: :few
+    :other: :other
+  :few:
+    :other: :other

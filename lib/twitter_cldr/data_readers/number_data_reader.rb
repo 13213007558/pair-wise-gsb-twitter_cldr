@@ -58,12 +58,19 @@ module TwitterCldr
         formatter.format(tokens, number, options)
       end
 
-      def pattern(number, decimal = true)
+      # Formats a range of two numbers as a single string, collapsing
+      # affixes (currency symbols, percent signs, compact magnitudes) that
+      # are semantically identical on both ends. Returns a
+      # TwitterCldr::Formatters::NumberRange that identifies the source of
+      # every segment of the text (:left, :right, or :shared).
+      def format_range(left, right, options = {})
+        range_formatter.format_range(left, right, options)
+      end
+
+      def pattern(number, decimal = true, plural_rule = nil)
         zeroes = number.to_i.abs.to_s.size - 1
         magnitude = "1#{'0' * zeroes}"
-        truncated_num = formatter.truncate_number(number, zeroes % 3 + 1)
-        truncated_num = truncated_num.to_i if decimal
-        plural_rule = PluralRules.rule_for(truncated_num, locale)
+        plural_rule ||= plural_rule_for(number, decimal)
 
         path = PATTERN_PATH + [
           type,
@@ -80,6 +87,13 @@ module TwitterCldr
         )
       end
 
+      def plural_rule_for(number, decimal = true)
+        zeroes = number.to_i.abs.to_s.size - 1
+        truncated_num = formatter.truncate_number(number, zeroes % 3 + 1)
+        truncated_num = truncated_num.to_i if decimal
+        PluralRules.rule_for(truncated_num, locale)
+      end
+
       def symbols
         @symbols ||= traverse_following_aliases(SYMBOL_PATH + [number_system])
       end
@@ -90,6 +104,10 @@ module TwitterCldr
 
       def formatter
         @formatter ||= FORMATTERS[type].new(self)
+      end
+
+      def range_formatter
+        @range_formatter ||= TwitterCldr::Formatters::NumberRangeFormatter.new(self)
       end
 
       def default_number_system

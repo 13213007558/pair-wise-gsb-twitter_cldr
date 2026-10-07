@@ -13,6 +13,15 @@ module TwitterCldr
         super(tokens, number, options).gsub('¤', data_reader.symbols[:percent_sign] || DEFAULT_PERCENT_SIGN)
       end
 
+      def format_parts(tokens, number, options = {})
+        percent_sign = data_reader.symbols[:percent_sign] || DEFAULT_PERCENT_SIGN
+
+        super.tap do |parts|
+          parts.prefix = parts.prefix.gsub('¤', percent_sign)
+          parts.suffix = parts.suffix.gsub('¤', percent_sign)
+        end
+      end
+
     end
   end
 end

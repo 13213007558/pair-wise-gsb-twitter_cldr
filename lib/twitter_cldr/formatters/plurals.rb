@@ -7,6 +7,7 @@ module TwitterCldr
   module Formatters
     module Plurals
       autoload :Rules, 'twitter_cldr/formatters/plurals/rules'
+      autoload :RangeRules, 'twitter_cldr/formatters/plurals/range_rules'
     end
   end
 end

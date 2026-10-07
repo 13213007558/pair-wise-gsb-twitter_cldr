@@ -1,0 +1,9 @@
+:root:
+  :range: "{0}–{1}"
+  :approximately: "~{0}"
+:ja:
+  :approximately: "約{0}"
+:zh:
+  :approximately: "约{0}"
+:zh-Hant:
+  :approximately: "約{0}"
